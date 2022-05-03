@@ -26,13 +26,11 @@ class Agent():
 
         Args:
             index (int): self index.
-            groupindex (int): group index.
             motivation (float): learning efficiency. (0-1)
             optional:
                 skills (list): skills list.
         """
         self.index = index
-        self.groupindex = None
         self.motivation = 0
         self.skills = []
 
