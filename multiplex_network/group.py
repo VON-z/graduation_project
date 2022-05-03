@@ -23,7 +23,7 @@ class Group():
     layers_num = 0 # the number of network layers.
     max_member_num = 0 # the maximum number of group members.
     adjacency_matrix = None # the adjacency matrix of whole network.
-    awareness_network = None # the adjacency matrix of awareness network.
+    motivation_network = None # the adjacency matrix of motivation network.
 
     def __init__(self, index, **kw) -> None:
         self.index = index
@@ -34,7 +34,7 @@ class Group():
         if 'agents' in kw:
             self.agents = kw['agents'].copy()
 
-        self.cal_group_awareness_network()
+        self.cal_group_motivation_network()
         self.cal_group_adjacency_matrix()
 
     def add_agent(self, a):
@@ -47,15 +47,15 @@ class Group():
             self.agents.append(a)
             self.member_num += 1
 
-    def cal_group_awareness_network(self):
-        """Extract the group's awareness network.
+    def cal_group_motivation_network(self):
+        """Extract the group's motivation network.
         """
         member_num = len(self.agents)
-        self.group_awareness_network = np.empty(
+        self.group_motivation_network = np.empty(
             [Group.layers_num, member_num, member_num], dtype = float)
         for i, a1 in enumerate(self.agents):
             for j, a2 in enumerate(self.agents):
-                self.group_awareness_network[:,i,j] = Group.awareness_matrix[:,a1.index,a2.index]
+                self.group_motivation_network[:,i,j] = Group.motivation_matrix[:,a1.index,a2.index]
 
     def cal_group_adjacency_matrix(self):
         """Extract the group's adjacency matrix.
@@ -67,8 +67,8 @@ class Group():
             for j, a2 in enumerate(self.agents):
                 self.group_adjacency_matrix[:,i,j] = Group.adjacency_matrix[:,a1.index,a2.index]
 
-    def cal_new_awareness(self):
-        """Calculate new awareness of this group.
+    def cal_new_motivation(self):
+        """Calculate new motivation of this group.
         """
 
     def cal_payoff(self):

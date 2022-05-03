@@ -21,7 +21,7 @@ class Network():
     """Multiplex network modeling.
     Including the number of network layers, the maximum scale of the network,
     the current scale of the network, the set of agents, the adjacency matrix
-    and awareness network.
+    and motivation network.
     """
     layers_num = 0  # the number of network layers.
     max_scale = 0   # the maximum scale of the network.
@@ -33,12 +33,12 @@ class Network():
             optional:
                 agents (list): the set of agents.
                 adjacency_matrix (ndarray): the adjacency matrix.
-                awareness_network (ndarray): the awareness network adjacenecy matrix.
+                motivation_network (ndarray): the motivation network adjacenecy matrix.
         """
         self.scale = 0
         self.agents = []
         self.adjacency_matrix = None
-        self.awareness_network = None
+        self.motivation_network = None
 
         if 'agents' in kw:
             # Data initialization.
@@ -54,12 +54,12 @@ class Network():
             # Random initialization.
             self.generate_network_weights()
 
-        if 'awareness_network' in kw:
+        if 'motivation_network' in kw:
             # Data initialization
-            self.awareness_network = kw['awareness_network'].copy()
+            self.motivation_network = kw['motivation_network'].copy()
         else:
             # Random initialization.
-            self.generate_awareness_network()
+            self.generate_motivation_network()
 
     def add_agent(self, a):
         """Add an agent.
@@ -85,11 +85,11 @@ class Network():
         self.adjacency_matrix = np.random.rand(
             Network.layers_num, Network.max_scale, Network.max_scale)
 
-    def generate_awareness_network(self):
-        """Randomly generate awareness network.
+    def generate_motivation_network(self):
+        """Randomly generate motivation network.
         (过渡函数,后续要细化随机生成哪种复杂网络,BA,WS...)
         """
-        self.awareness_network = np.random.rand(
+        self.motivation_network = np.random.rand(
             1, Network.max_scale, Network.max_scale)
 
     def write2file(self, path):

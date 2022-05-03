@@ -40,7 +40,7 @@ Network.max_scale = NETWORK_SCALE
 network = Network()
 # 初始化Group类的邻接矩阵
 Group.adjacency_matrix = network.adjacency_matrix
-Group.awareness_network = network.awareness_network
+Group.motivation_network = network.motivation_network
 
 # 实例化算法类
 algorithm = Algorithom(network)
