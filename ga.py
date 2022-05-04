@@ -16,8 +16,8 @@ import random
 import scipy.linalg
 
 # here put the local import source
-from numpy import np
-from multiplex_network.group import Group
+import numpy as np
+
 # from multiplex_network.network import Network
 
 
@@ -25,7 +25,7 @@ class GA():
     """Implement different algorithms.
     Including grouping results and total payoff.
     """
-    def __init__(self, network, group_scale, P, pc, pm, it) -> None:
+    def __init__(self, network, group_scale, skill_num, P, pc, pm, it) -> None:
         """Initialization.
 
         Args:
@@ -38,6 +38,7 @@ class GA():
         """
         self.network = network
         self.group_scale = group_scale
+        self.skill_num = skill_num
         self.P = P
         self.pc = pc
         self.pm = pm
@@ -46,7 +47,7 @@ class GA():
         self.block_diagonal_matrix = None
         self.generate_block_diagonal_matrix()
 
-        self.grouping_matrix = None # The tensor representing a series of grouping results。
+        self.grouping_tensor = None # The tensor representing a series of grouping results。
         self.total_payoff = None   # Total payoff of a series of grouping results.
 
     def generate_block_diagonal_matrix(self):
@@ -63,50 +64,45 @@ class GA():
         for _ in range(complete):
             blocks.append(np.ones([self.group_scale, self.group_scale], dtype=int))
         for _ in range(missing):
-            blocks.append(np.ones[self.group_scale-1, self.group_scale-1], dtype=int)
+            blocks.append(np.ones([self.group_scale-1, self.group_scale-1], dtype=int))
         self.block_diagonal_matrix = scipy.linalg.block_diag(*blocks)
-
 
     def generate_initial_population(self):
         """Generate initial population.
         """
-        T = np.zeros([self.network.scale, self.network.scale], dtype=int)
-        seq = list(range(self.network.scale))
-        random.shuffle(seq)
-        for i in range(self.network.scale):
-            T[i][seq[i]] = 1
+        self.grouping_tensor = np.empty([self.P, self.network.scale, self.network.scale])
+        for p in range(self.P):
+            T = np.zeros([self.network.scale, self.network.scale], dtype=int)
+            seq = list(range(self.network.scale))
+            random.shuffle(seq)
+            for i in range(self.network.scale):
+                T[i][seq[i]] = 1
+                
+            self.grouping_tensor[p] = np.dot(np.dot(T, self.block_diagonal_matrix), T)
 
-        self.grouping_matrix = np.empty([self.P, self.network.scale, self.network.scale])
-        for i in range(self.P):
-            self.grouping_matrix[i] = np.dot(np.dot(T, self.block_diagonal_matrix), T)
-
-    def cal_payoff(self):
-        """Calculate total payoff.
+    def cal_payoff(self, grouping_matrix):
+        """Calculate payoff of a grooping result.
         """
         # Calculate motivation after grouping.
         for idx in range(self.network.scale):
-            self.network.agents[idx].motivation += \
-                self.grouping_matrix[idx,:] * self.network.T1[:, idx] 
+            self.network.agents[idx].motivation += np.dot(
+                grouping_matrix[idx,:], self.network.T1[:, idx]
+            )
+
         # Calculate skill promotion.
+        for idx in range(self.network.scale):
+            for k in range(self.skill_num):
+                self.network.agents.improvements.append(
+                   np.dot(grouping_matrix[idx,:], self.network.T2[k,:,idx]) * \
+                       self.network.agents[idx].motivation
+               )
 
     def write2file(self, path):
-        """将分组结果写入磁盘文件
+        """Write to disk file.
 
         Args:
             path (_type_): _description_
         """
         pass
 
-    # def random(self):
-    #     """Randomly assign agents.
-    #     """
-    #     # Shuffle the set of agents
-    #     agents = self.network.agents.copy()
-    #     random.shuffle(agents)
-
-    #     group_num = math.ceil(self.network.scale / Group.max_member_num) # the number of groups
-    #     for idx in range(group_num):
-    #         self.groups.append(Group(idx))
-    #     for i in range(self.network.scale):
-    #         self.groups[i % group_num].add_agent(agents[i])
         

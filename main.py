@@ -14,39 +14,28 @@
 # here put the third-party packages
 
 # here put the local import source
+from ctypes.wintypes import PCHAR
 from multiplex_network.agent import Agent
-from multiplex_network.group import Group
 from multiplex_network.network import Network
 from ga import GA
 
-# 超参数设置
-SKILL_NUM = 5
-MAX_MEMBER_NUM = 5
-NETWORK_SCALE = 50
+# Hyperparameters
+SKILL_NUM = 2
+MAX_MEMBER_NUM = 2
+NETWORK_SCALE = 4
+POPULATION = 3
+PC = 0.5
+PM = 0.5
+IT = 10
 
-# 初始化Agent类变量
+# Initialize Agent class variables.
 Agent.skill_num = SKILL_NUM
 
-# 初始化Group类变量
-Group.max_member_num = MAX_MEMBER_NUM
-
-# 初始化Network类变量
-Network.max_scale = NETWORK_SCALE
-
-# 构建网络
+# Build the network.
 network = Network(NETWORK_SCALE)
-# 初始化Group类的邻接矩阵
-Group.adjacency_matrix = network.adjacency_matrix
-Group.motivation_network = network.motivation_network
 
-# 实例化算法类
-algorithm = Algorithom(network)
+# Genetic Algorithm.
+algorithm = GA(network, MAX_MEMBER_NUM, SKILL_NUM, POPULATION, PC, PM, IT)
 
-# 算法1:随机分组
-algorithm.random()
-# for i in range(10):
-#     for j in range(5):
-#         print(algorithm.groups[i].agents[j].index)
-#     print('\n')
-algorithm.cal_payoff()
-print(algorithm.total_payoff)
+# Generate initial population.
+algorithm.generate_initial_population()

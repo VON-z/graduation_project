@@ -105,7 +105,7 @@ class Network():
                         self.T2[k][i][j] = 0
                         
     def write2file(self, path):
-        """将网络参数写入磁盘文件
+        """Write to disk file.
 
         Args:
             path (_type_): _description_

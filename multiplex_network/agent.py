@@ -33,6 +33,7 @@ class Agent():
         self.index = index
         self.motivation = 0
         self.skills = []
+        self.improvements = []
 
         if 'skills' in kw:
             # Data initialization.
@@ -42,3 +43,10 @@ class Agent():
             # Random initialization.
             for _ in range(Agent.skill_num):
                 self.skills.append(random.betavariate(4, 4))
+
+        if 'motivation' in kw:
+            # Data initialization.
+            self.motivation = kw['motivation']
+        else:
+            # Random initializtion.
+            self.motivation = random.betavariate(4,4)
