@@ -33,7 +33,6 @@ class Agent():
         self.index = index
         self.motivation = 0
         self.skills = []
-        self.improvements = []
 
         if 'skills' in kw:
             # Data initialization.

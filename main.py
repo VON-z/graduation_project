@@ -39,3 +39,7 @@ algorithm = GA(network, MAX_MEMBER_NUM, SKILL_NUM, POPULATION, PC, PM, IT)
 
 # Generate initial population.
 algorithm.generate_initial_population()
+# Calculate evaluation.
+for p in range(POPULATION):
+    algorithm.cal_payoff()
+    algorithm.cal_evaluation()

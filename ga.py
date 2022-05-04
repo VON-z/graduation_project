@@ -48,7 +48,8 @@ class GA():
         self.generate_block_diagonal_matrix()
 
         self.grouping_tensor = None # The tensor representing a series of grouping results。
-        self.total_payoff = None   # Total payoff of a series of grouping results.
+        self.payoff_tensor = None   # The tensor records payoff of a series of grouping results.
+        self.evaluation = []
 
     def generate_block_diagonal_matrix(self):
         """Generate block diagonal matrix.
@@ -77,25 +78,48 @@ class GA():
             random.shuffle(seq)
             for i in range(self.network.scale):
                 T[i][seq[i]] = 1
-                
+
             self.grouping_tensor[p] = np.dot(np.dot(T, self.block_diagonal_matrix), T)
 
-    def cal_payoff(self, grouping_matrix):
-        """Calculate payoff of a grooping result.
+    def cal_payoff(self):
+        """Calculate payoff for each agent in each skill of all grouping results.
         """
-        # Calculate motivation after grouping.
-        for idx in range(self.network.scale):
-            self.network.agents[idx].motivation += np.dot(
-                grouping_matrix[idx,:], self.network.T1[:, idx]
-            )
+        self.payoff_tensor = np.empty([self.P, self.network.scale, self.skill_num])
+        for p in range(self.P):
+            # Calculate motivation after grouping.
+            for idx in range(self.network.scale):
+                self.network.agents[idx].motivation += np.dot(
+                    self.grouping_tensor[p,idx,:], self.network.T1[:, idx]
+                )
 
-        # Calculate skill promotion.
-        for idx in range(self.network.scale):
-            for k in range(self.skill_num):
-                self.network.agents.improvements.append(
-                   np.dot(grouping_matrix[idx,:], self.network.T2[k,:,idx]) * \
-                       self.network.agents[idx].motivation
-               )
+            # Calculate skill promotion.
+            for idx in range(self.network.scale):
+                for k in range(self.skill_num):
+                    self.payoff_tensor[p][idx][k] = np.dot(self.grouping_tensor[p,idx,:],
+                    self.network.T2[k,:,idx]) * self.network.agents[idx].motivation
+
+    def cal_evaluation(self):
+        """Calculate the evaluation of each population.
+        """
+        for p in range(self.P):
+            self.evaluation.append(np.sum(self.payoff_tensor[p,:,:]))
+
+    def mutation(self, idx):
+        """Implement mutation function.
+
+        Args:
+            idx (int): the index of the solution to be mutated.
+        """
+        pass
+
+    def crossover(self, idx1, idx2):
+        """Implement crossover function.
+
+        Args:
+            idx1 (int): the index of the solution to be crossed.
+            idx2 (int): the index of the solution to be crossed.
+        """
+        pass
 
     def write2file(self, path):
         """Write to disk file.
