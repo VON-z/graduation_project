@@ -83,6 +83,7 @@ class GA():
                 T[i][seq[i]] = 1
 
             self.grouping_tensor[p] = np.dot(np.dot(T, self.block_diagonal_matrix), T)
+            self.grouping_tensor[p][np.eye(self.network.scale, dtype=bool)] = 0
 
     def cal_payoff(self):
         """Calculate payoff for each agent in each skill of all grouping results.
@@ -131,18 +132,62 @@ class GA():
         # shuffle
         random.shuffle(self.intermediate_generation)
 
-    def crossover(self):
-        """Implement crossover function.
+    def recombination(self):
+        """Implement recombination function to create the next generation.
         """
-        
+        next_generation_num = 0
+        mid_generation_num = len(self.intermediate_generation)
+        next_generation = np.empty([self.P, self.network.scale, self.network.scale])
 
-    def mutation(self, idx):
-        """Implement mutation function.
+        while next_generation_num < self.P:
+            parent1 = self.intermediate_generation[next_generation_num % mid_generation_num]
+            parent2 = self.intermediate_generation[
+                (next_generation_num + 1) % mid_generation_num]
+
+            if random.random() < self.pc:
+                # crossover
+                child1, child2 = self.crossover(parent1, parent2)
+                next_generation[next_generation_num] = child1.copy()
+                next_generation[next_generation_num+1] = child2.copy()
+
+            else:
+                # reproduction
+                next_generation[next_generation_num] = parent1.copy()
+                next_generation[next_generation_num+1] = parent2.copy()
+                next_generation_num += 2
+        
+        self.grouping_tensor = next_generation.copy()
+
+    def crossover(self, parent1, parent2):
+        """Implement crossover function to create the next generation.
 
         Args:
-            idx (int): the index of the solution to be mutated.
+            parent1 (ndarray): one solution in intermediate generation.
+            parent2 (ndarray): one solution in intermediate generation.
+
+        Returns:
+            tuple: two offspring.
         """
-        pass
+        child1 = parent1.copy()
+        child2 = parent2.copy()
+        for i in range(self.network.scale):
+            if sum(child1[i] * child2[i]) < 1 and random.random() < self.pc:
+                # Connecting agents are completely different.
+                child1[i], child2[i] = child2[i].copy(), child1[i].copy()
+
+        return child1, child2
+
+    def mutation(self):
+        """Implement mutation function.
+        """
+        index = list(range(self.network.scale))
+        for p in range(self.P):
+            if random.random() < self.pm:
+                i, j = random.sample(index, 2)
+                if sum(self.grouping_tensor[p][i] * self.grouping_tensor[p][j]) < 1:
+                    # Connecting agents are completely different.
+                    self.grouping_tensor[p][i], self.grouping_tensor[p][j] = \
+                        self.grouping_tensor[p][j].copy(), self.grouping_tensor[p][i].copy()
 
     def write2file(self, path):
         """Write to disk file.
