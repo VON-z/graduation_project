@@ -10,13 +10,14 @@
 '''
 
 # here put the standard library
+import math
 import random
 
 # here put the third-party packages
 import scipy.linalg
+import numpy as np
 
 # here put the local import source
-import numpy as np
 
 # from multiplex_network.network import Network
 
@@ -50,6 +51,8 @@ class GA():
         self.grouping_tensor = None # The tensor representing a series of grouping results。
         self.payoff_tensor = None   # The tensor records payoff of a series of grouping results.
         self.evaluation = []
+        self.fitness = []
+        self.intermediate_generation = []
 
     def generate_block_diagonal_matrix(self):
         """Generate block diagonal matrix.
@@ -104,20 +107,40 @@ class GA():
         for p in range(self.P):
             self.evaluation.append(np.sum(self.payoff_tensor[p,:,:]))
 
+    def cal_fitness(self):
+        """Calculate the fitness of each solution.
+        """
+        avg_fitness = sum(self.evaluation) / len(self.evaluation)
+        for item in self.evaluation:
+            self.fitness.append(item / avg_fitness)
+
+    def selection(self):
+        """Selection is applied to the current population
+        to create an intermediate population.
+        """
+        for i, fitness in enumerate(self.fitness):
+            # Integer portion
+            direct_placed = math.floor(fitness)
+            for _ in range(direct_placed):
+                self.intermediate_generation.append(self.grouping_tensor[i])
+            # Fractional portion
+            probability_placed = fitness - direct_placed
+            if random.random() < probability_placed:
+                self.intermediate_generation.append(self.grouping_tensor[i])
+
+        # shuffle
+        random.shuffle(self.intermediate_generation)
+
+    def crossover(self):
+        """Implement crossover function.
+        """
+        
+
     def mutation(self, idx):
         """Implement mutation function.
 
         Args:
             idx (int): the index of the solution to be mutated.
-        """
-        pass
-
-    def crossover(self, idx1, idx2):
-        """Implement crossover function.
-
-        Args:
-            idx1 (int): the index of the solution to be crossed.
-            idx2 (int): the index of the solution to be crossed.
         """
         pass
 
