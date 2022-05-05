@@ -90,27 +90,31 @@ class GA():
         """
         self.payoff_tensor = np.empty([self.P, self.network.scale, self.skill_num])
         for p in range(self.P):
+            new_motivation = []
             # Calculate motivation after grouping.
             for idx in range(self.network.scale):
-                self.network.agents[idx].motivation += np.dot(
-                    self.grouping_tensor[p,idx,:], self.network.T1[:, idx]
+                new_motivation.append(
+                    self.network.agents[idx].motivation + \
+                        np.dot(self.grouping_tensor[p,idx,:], self.network.T1[:, idx])
                 )
 
             # Calculate skill promotion.
             for idx in range(self.network.scale):
                 for k in range(self.skill_num):
                     self.payoff_tensor[p][idx][k] = np.dot(self.grouping_tensor[p,idx,:],
-                    self.network.T2[k,:,idx]) * self.network.agents[idx].motivation
+                    self.network.T2[k,:,idx]) * new_motivation[idx]
 
     def cal_evaluation(self):
         """Calculate the evaluation of each population.
         """
+        self.evaluation = []
         for p in range(self.P):
             self.evaluation.append(np.sum(self.payoff_tensor[p,:,:]))
 
     def cal_fitness(self):
         """Calculate the fitness of each solution.
         """
+        self.fitness = []
         avg_fitness = sum(self.evaluation) / len(self.evaluation)
         for item in self.evaluation:
             self.fitness.append(item / avg_fitness)
@@ -119,6 +123,7 @@ class GA():
         """Selection is applied to the current population
         to create an intermediate population.
         """
+        self.intermediate_generation = []
         for i, fitness in enumerate(self.fitness):
             # Integer portion
             direct_placed = math.floor(fitness)
@@ -155,7 +160,7 @@ class GA():
                 next_generation[next_generation_num] = parent1.copy()
                 next_generation[next_generation_num+1] = parent2.copy()
                 next_generation_num += 2
-        
+
         self.grouping_tensor = next_generation.copy()
 
     def crossover(self, parent1, parent2):
