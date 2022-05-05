@@ -14,7 +14,6 @@
 # here put the third-party packages
 
 # here put the local import source
-from ctypes.wintypes import PCHAR
 from multiplex_network.agent import Agent
 from multiplex_network.network import Network
 from ga import GA
@@ -25,7 +24,7 @@ MAX_MEMBER_NUM = 2
 NETWORK_SCALE = 4
 POPULATION = 3
 PC = 0.5
-PM = 0.5
+PM = 0.01
 IT = 10
 
 # Initialize Agent class variables.
