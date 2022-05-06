@@ -58,8 +58,7 @@ class GA():
         """Generate block diagonal matrix.
         """
         # Calculate how many groups are missing an agent and how many groups are complete.
-        group_num = self.network.scale // self.group_scale + \
-            self.network.scale % self.group_scale
+        group_num = math.ceil(self.network.scale / self.group_scale)
         missing = group_num * self.group_scale - self.network.scale
         complete = group_num - missing
 
@@ -70,20 +69,32 @@ class GA():
         for _ in range(missing):
             blocks.append(np.ones([self.group_scale-1, self.group_scale-1], dtype=int))
         self.block_diagonal_matrix = scipy.linalg.block_diag(*blocks)
+        self.block_diagonal_matrix[np.eye(self.network.scale, dtype=bool)] = 0
 
     def generate_initial_population(self):
         """Generate initial population.
         """
         self.grouping_tensor = np.empty([self.P, self.network.scale, self.network.scale])
-        for p in range(self.P):
-            T = np.zeros([self.network.scale, self.network.scale], dtype=int)
-            seq = list(range(self.network.scale))
-            random.shuffle(seq)
-            for i in range(self.network.scale):
-                T[i][seq[i]] = 1
+        # for p in range(self.P):
+        #     T = np.zeros([self.network.scale, self.network.scale], dtype=int)
+        #     seq = list(range(self.network.scale))
+        #     random.shuffle(seq)
+        #     for i in range(self.network.scale):
+        #         T[i][seq[i]] = 1
 
-            self.grouping_tensor[p] = np.dot(np.dot(T, self.block_diagonal_matrix), T)
-            self.grouping_tensor[p][np.eye(self.network.scale, dtype=bool)] = 0
+        #     self.grouping_tensor[p] = np.dot(np.dot(T, self.block_diagonal_matrix), T)
+        for p in range(self.P):
+            self.grouping_tensor[p] = self.block_diagonal_matrix.copy()
+            for i in range(self.network.scale):
+                j = random.randint(0, self.network.scale-1)
+                if sum(self.grouping_tensor[p][i] * self.grouping_tensor[p][j]) < 0.5:
+                    # Connecting agents are completely different.
+                    # Row swap.
+                    self.grouping_tensor[p][i], self.grouping_tensor[p][j] = \
+                        self.grouping_tensor[p][j].copy(), self.grouping_tensor[p][i].copy()
+                    # Column swap.
+                    self.grouping_tensor[p,:,i], self.grouping_tensor[p,:,j] = \
+                        self.grouping_tensor[p,:,j].copy(), self.grouping_tensor[p,:,i].copy()
 
     def cal_payoff(self):
         """Calculate payoff for each agent in each skill of all grouping results.
@@ -176,9 +187,12 @@ class GA():
         child1 = parent1.copy()
         child2 = parent2.copy()
         for i in range(self.network.scale):
-            if sum(child1[i] * child2[i]) < 1 and random.random() < self.pc:
+            if sum(child1[i] * child2[i]) < 0.5 and random.random() < self.pc:
                 # Connecting agents are completely different.
+                # Row swap.
                 child1[i], child2[i] = child2[i].copy(), child1[i].copy()
+                # Column swap.
+                child1[:,i], child2[:,i] = child2[:,i].copy(), child1[:,i].copy()
 
         return child1, child2
 
@@ -189,10 +203,14 @@ class GA():
         for p in range(self.P):
             if random.random() < self.pm:
                 i, j = random.sample(index, 2)
-                if sum(self.grouping_tensor[p][i] * self.grouping_tensor[p][j]) < 1:
+                if sum(self.grouping_tensor[p][i] * self.grouping_tensor[p][j]) < 0.5:
                     # Connecting agents are completely different.
+                    # Row swap.
                     self.grouping_tensor[p][i], self.grouping_tensor[p][j] = \
                         self.grouping_tensor[p][j].copy(), self.grouping_tensor[p][i].copy()
+                    # Column swap.
+                    self.grouping_tensor[p,:,i], self.grouping_tensor[p,:,j] = \
+                        self.grouping_tensor[p,:,j].copy(), self.grouping_tensor[p,:,i].copy()
 
     def write2file(self, path):
         """Write to disk file.

@@ -15,6 +15,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from tqdm import trange
 
 # here put the local import source
 from multiplex_network.agent import Agent
@@ -22,13 +23,13 @@ from multiplex_network.network import Network
 from ga import GA
 
 # Hyperparameters
-SKILL_NUM = 2
+SKILL_NUM = 5
 MAX_MEMBER_NUM = 5
-NETWORK_SCALE = 50
+NETWORK_SCALE = 100
 POPULATION = 100
 PC = 0.5
-PM = 0.01
-IT = 10
+PM = 0.1
+IT = 1000
 
 # Initialize Agent class variables.
 Agent.skill_num = SKILL_NUM
@@ -42,14 +43,13 @@ algorithm = GA(network, MAX_MEMBER_NUM, SKILL_NUM, POPULATION, PC, PM, IT)
 # Generate initial population.
 algorithm.generate_initial_population()
 
-generation_num = 0
 evaluation = np.empty([IT, POPULATION])
-while generation_num < IT:
+for generation_num in trange(IT):
     # Calculate payoff tensor.
     algorithm.cal_payoff()
     # Calculate evaluation.
     algorithm.cal_evaluation()
-    evaluation[generation_num] = algorithm.evaluation.copy()
+    evaluation[generation_num] = algorithm.evaluation.copy()    # draw heatmap.
     # Calculate fitness.
     algorithm.cal_fitness()
 
@@ -59,8 +59,6 @@ while generation_num < IT:
     algorithm.recombination()
     # Mutation.
     algorithm.mutation()
-    generation_num += 1
-
 
 # Draw evaluation figure.
 # 支持中文以及负数
