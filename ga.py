@@ -104,16 +104,28 @@ class GA():
             new_motivation = []
             # Calculate motivation after grouping.
             for idx in range(self.network.scale):
-                new_motivation.append(
-                    self.network.agents[idx].motivation + \
-                        np.dot(self.grouping_tensor[p,idx,:], self.network.T1[:, idx])
+                neighbor_num = np.count_nonzero(
+                    self.grouping_tensor[p,idx,:] * self.network.T1[:, idx]
                 )
+                if neighbor_num:
+                    new_motivation.append(
+                        self.network.agents[idx].motivation + np.dot(
+                            self.grouping_tensor[p,idx,:], self.network.T1[:, idx]) / neighbor_num
+                    )
+                else:
+                    new_motivation.append(self.network.agents[idx].motivation)
 
             # Calculate skill promotion.
             for idx in range(self.network.scale):
                 for k in range(self.skill_num):
-                    self.payoff_tensor[p][idx][k] = np.dot(self.grouping_tensor[p,idx,:],
-                    self.network.T2[k,:,idx]) * new_motivation[idx]
+                    neighbor_num = np.count_nonzero(
+                        self.grouping_tensor[p,idx,:] * self.network.T2[k,:,idx]
+                    )
+                    if neighbor_num:
+                        self.payoff_tensor[p][idx][k] = np.dot(self.grouping_tensor[p,idx,:],
+                            self.network.T2[k,:,idx]) * new_motivation[idx] / neighbor_num
+                    else:
+                        self.payoff_tensor[p][idx][k] = 0
 
     def cal_evaluation(self):
         """Calculate the evaluation of each population.

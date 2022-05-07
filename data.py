@@ -27,7 +27,7 @@ from ga import GA
 # Hyperparameters
 SKILL_NUM = 5
 MAX_MEMBER_NUM = 5
-NETWORK_SCALE = [100, 300, 500]
+NETWORK_SCALE = [100, 200, 500]
 
 # 1.Generate
 # Agent skills and motivation.
@@ -42,7 +42,10 @@ def generate_skills(network_scale, path):
         ndarray: skills matrix.
     """
     skills = np.random.beta(4, 4, (network_scale, SKILL_NUM))
-    np.save(path, skills)
+    if path:
+        if not(os.path.exists(path)):
+            os.makedirs(path)
+        np.save(os.path.join(path, 'skills_n{}'.format(network_scale)), skills)
     return skills
 
 def generate_motivation(network_scale, path):
@@ -56,16 +59,20 @@ def generate_motivation(network_scale, path):
         ndarray: motivation matrix.
     """
     motivation = np.random.beta(4, 4, network_scale)
-    np.save(path, motivation)
+    if path:
+        if not(os.path.exists(path)):
+            os.makedirs(path)
+        np.save(os.path.join(path, 'motivation_n{}'.format(network_scale)), motivation)
     return motivation
 
 # Network weights.
-def generate_er(network_scale, p, path):
+def generate_er(network_scale, p, i, path):
     """Generate ER graph.
 
     Args:
         network_scale (int): number of agents.
         p (float): edge probability.
+        i (int): network layer serial number.
         path (string): storage path.
 
     Returns:
@@ -79,16 +86,19 @@ def generate_er(network_scale, p, path):
         weights[edge[0]][edge[1]] = random.random()
     # Write to disk.
     if path:
-        np.save(path, weights)
+        if not(os.path.exists(path)):
+            os.makedirs(path)
+        np.save(os.path.join(path, 'er{}_n{}_p{}'.format(i, network_scale, p)), weights)
     return weights
 
-def generate_ws(network_scale, k, p, path):
+def generate_ws(network_scale, k, p, i, path):
     """Generate WS small world graph.
 
     Args:
         network_scale (int): number of agents.
         k (int): each node is joined with its k nearest neighbors in a ring topology.
         p (float): the probability of rewiring each edge.
+        i (int): network layer serial number.
         path (string): storage path.
 
     Returns:
@@ -102,14 +112,17 @@ def generate_ws(network_scale, k, p, path):
         weights[edge[0]][edge[1]] = random.random()
     # Write to disk.
     if path:
-        np.save(path, weights)
+        if not(os.path.exists(path)):
+            os.makedirs(path)
+        np.save(os.path.join(path, 'ws{}_n{}_k{}_p{}'.format(i, network_scale, MAX_MEMBER_NUM, p)), weights)
     return weights
 
-def generate_ba(network_scale, m, path):
+def generate_ba(network_scale, m, i, path):
     """Generate BA scale free graph.
     Args:
         network_scale (int): number of agents.
         m (int): number of edges to attach from a new node to existing nodes.
+        i (int): network layer serial number.
         path (string): storage path.
 
     Returns:
@@ -123,31 +136,92 @@ def generate_ba(network_scale, m, path):
         weights[edge[0]][edge[1]] = random.random()
     # Write to disk.
     if path:
-        np.save(path, weights)
+        if not(os.path.exists(path)):
+            os.makedirs(path)
+        np.save(os.path.join(path, 'ba{}_n{}_m{}'.format(i, network_scale, m)), weights)
     return weights
 
 # 2.Load
+def load_skills(network_scale):
+    """Load skills.
 
-if __name__=='__main__':
-    for n in NETWORK_SCALE:
-        # Agent skills and motivation.
-        generate_skills(n, os.path.join('data', 'skills', 'skills_n{}'.format(n)))
-        generate_motivation(n, os.path.join('data', 'motivation', 'motivation_n{}'.format(n)))
+    Args:
+        network_scale (int): number of agents.
 
-        # Network weights.
-        # ER
-        for p in [1/n, math.log(n)/n]:
-            generate_er(n, p, os.path.join('data', 'network', 'er1_n{}_p{}'.format(n, p)))
-            generate_er(n, p, os.path.join('data', 'network', 'er2_n{}_p{}'.format(n, p)))
-        # WS
-        for p in [0.1, 0.3, 0.5, 0.7, 0.9]:
-            generate_ws(n, MAX_MEMBER_NUM, p, os.path.join(
-                'data', 'network', 'ws1_n{}_k{}_p{}'.format(n, MAX_MEMBER_NUM, p)))
-            generate_ws(n, MAX_MEMBER_NUM, p, os.path.join(
-                'data', 'network', 'ws2_n{}_k{}_p{}'.format(n, MAX_MEMBER_NUM, p)))
-        # BA
-        for m in [1,3,5,7]:
-            generate_ba(n, m,  os.path.join('data', 'network', 'ba1_n{}_m{}'.format(n, m)))
-            generate_ba(n, m,  os.path.join('data', 'network', 'ba2_n{}_m{}'.format(n, m)))
+    Returns:
+        ndarray: skills matrix.
+    """
+    path = os.path.join('./data', 'skills', 'skills_n{}.npy'.format(network_scale))
+    skills = np.load(path)
+    return skills
 
+def load_motivation(network_scale):
+    """Load motivation.
+
+    Args:
+        network_scale (int): number of agents.
+
+    Returns:
+        ndarray: motivation matrix.
+    """
+    path = os.path.join('./data', 'motivation', 'motivation_n{}.npy'.format(network_scale))
+    motivation = np.load(path)
+    return motivation
+
+def load_network(network_scale, network_type, **kw):
+    """Load different type network.
+
+    Args:
+        network_scale (int): number of agents.
+        network_type (string): network type.
+        optional:
+            layer (int): network layer serial number.
+            p (float): probability
+            m (int): number of edges to attach from a new node to existing nodes.
+    """
+    if network_type == 'ER':
+        path = os.path.join('./data', 'network', 'ER', 
+            'er{}_n{}_p{}'.format(kw['layer'], network_scale, kw['p']))
+        weights = np.load(path)
+        return weights
+
+    if network_type == 'WS':
+        path = os.path.join('./data', 'network', 'WS', 
+            'ws{}_n{}_k{}_p{}'.format(kw['layer'], network_scale, MAX_MEMBER_NUM, kw['p']))
+        weights = np.load(path)
+        return weights
+
+    if network_type == 'BA':
+        path = os.path.join('./data', 'network', 'BA', 
+            'ba{}_n{}_m{}'.format(kw['layer'], network_scale, kw['m']))
+        weights = np.load(path)
+        return weights
+
+
+# if __name__=='__main__':
+#     for n in NETWORK_SCALE:
+#         # Agent skills and motivation.
+#         generate_skills(n, os.path.join('data', 'skills'))
+#         generate_motivation(n, os.path.join('data', 'motivation'))
+
+#         # Network weights.
+#         # ER
+#         for p in [1/n, math.ceil(math.log(n))/n]:
+#             for i in [1, 2]:
+#                 generate_er(n, p, i, os.path.join('./data', 'network', 'ER'))
+#         # WS
+#         for p in [0.1, 0.3, 0.5, 0.7, 0.9]:
+#             for i in [1, 2]:
+#                 generate_ws(n, MAX_MEMBER_NUM, p, i, os.path.join('./data', 'network', 'WS'))
+#         # BA
+#         for m in [1,3,5,7]:
+#             for i in [1, 2]:
+#                 generate_ba(n, m, i, os.path.join('./data', 'network', 'BA'))
+
+# Test load function.
+for n in NETWORK_SCALE:
+    skills = load_skills(n)
+    motivation = load_motivation(n)
+
+    print('breakpoint')
         
