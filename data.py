@@ -198,25 +198,25 @@ def load_network(network_scale, network_type, **kw):
         return weights
 
 
-# if __name__=='__main__':
-#     for n in NETWORK_SCALE:
-#         # Agent skills and motivation.
-#         generate_skills(n, os.path.join('data', 'skills'))
-#         generate_motivation(n, os.path.join('data', 'motivation'))
+if __name__=='__main__':
+    for n in NETWORK_SCALE:
+        # Agent skills and motivation.
+        generate_skills(n, os.path.join('data', 'skills'))
+        generate_motivation(n, os.path.join('data', 'motivation'))
 
-#         # Network weights.
-#         # ER
-#         for p in [1/n, math.ceil(math.log(n))/n]:
-#             for i in [1, 2]:
-#                 generate_er(n, p, i, os.path.join('./data', 'network', 'ER'))
-#         # WS
-#         for p in [0.1, 0.3, 0.5, 0.7, 0.9]:
-#             for i in [1, 2]:
-#                 generate_ws(n, MAX_MEMBER_NUM, p, i, os.path.join('./data', 'network', 'WS'))
-#         # BA
-#         for m in [1,3,5,7]:
-#             for i in [1, 2]:
-#                 generate_ba(n, m, i, os.path.join('./data', 'network', 'BA'))
+        # Network weights.
+        # ER
+        for p in [1/n, math.ceil(math.log(n))/n]:
+            for i in [1, 2]:
+                generate_er(n, p, i, os.path.join('./data', 'network', 'ER'))
+        # WS
+        for p in [0.1, 0.3, 0.5, 0.7, 0.9]:
+            for i in [1, 2]:
+                generate_ws(n, MAX_MEMBER_NUM, p, i, os.path.join('./data', 'network', 'WS'))
+        # BA
+        for m in [1,3,5,7]:
+            for i in [1, 2]:
+                generate_ba(n, m, i, os.path.join('./data', 'network', 'BA'))
 
 # Test load function.
 for n in NETWORK_SCALE:
