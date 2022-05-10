@@ -6,7 +6,7 @@
 @Version :   1.0
 @Contact :   1036991178@qq.com
 @License :   (C)Copyright 2021-2022, VONz.
-@Desc    :   Implement some algorithms to solve the problem.
+@Desc    :   Implement genetic algorithm to solve the problem.
 '''
 
 # here put the standard library
@@ -23,8 +23,7 @@ import numpy as np
 
 
 class GA():
-    """Implement different algorithms.
-    Including grouping results and total payoff.
+    """Implement genetic algorithm.
     """
     def __init__(self, network, group_scale, skill_num, P, pc, pm, it) -> None:
         """Initialization.
@@ -32,6 +31,7 @@ class GA():
         Args:
             network (Network): network model.
             group_scale (int): max member number in a group.
+            skill_num (int): skill number.
             P (int): population size.
             pc (float): probability of performing crossover.
             pm (float): probability of mutation.
@@ -75,14 +75,6 @@ class GA():
         """Generate initial population.
         """
         self.grouping_tensor = np.empty([self.P, self.network.scale, self.network.scale])
-        # for p in range(self.P):
-        #     T = np.zeros([self.network.scale, self.network.scale], dtype=int)
-        #     seq = list(range(self.network.scale))
-        #     random.shuffle(seq)
-        #     for i in range(self.network.scale):
-        #         T[i][seq[i]] = 1
-
-        #     self.grouping_tensor[p] = np.dot(np.dot(T, self.block_diagonal_matrix), T)
         for p in range(self.P):
             self.grouping_tensor[p] = self.block_diagonal_matrix.copy()
             for i in range(self.network.scale):

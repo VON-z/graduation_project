@@ -21,28 +21,31 @@ from tqdm import trange
 from multiplex_network.agent import Agent
 from multiplex_network.network import Network
 from ga import GA
+from sa import SA
 
 # Hyperparameters
 SKILL_NUM = 5
 MAX_MEMBER_NUM = 5
 NETWORK_SCALE = 100
+
+# Genetic Algorithm Parameters.
 POPULATION = 100
 PC = 0.5
 PM = 0.1
 IT = 1000
 
-# Initialize Agent class variables.
-Agent.skill_num = SKILL_NUM
+# Simulated Annealing Parameters.
+TE = 10
+ALPHA = 0.9
+L = 5
 
-# Build the network.
-network = Network(NETWORK_SCALE)
+
+Agent.skill_num = SKILL_NUM # Initialize Agent class variables.
+network = Network(NETWORK_SCALE)    # Build the network.
 
 # Genetic Algorithm.
 algorithm = GA(network, MAX_MEMBER_NUM, SKILL_NUM, POPULATION, PC, PM, IT)
-
-# Generate initial population.
-algorithm.generate_initial_population()
-
+algorithm.generate_initial_population() # Generate initial population.
 evaluation = np.empty([IT, POPULATION])
 for generation_num in trange(IT):
     # Calculate payoff tensor.
@@ -60,6 +63,10 @@ for generation_num in trange(IT):
     # Mutation.
     algorithm.mutation()
 
+# Simulated Annealing.
+algorithm = SA(network, MAX_MEMBER_NUM, SKILL_NUM)
+
+
 # Draw evaluation figure.
 # 支持中文以及负数
 plt.rcParams['font.sans-serif']=['STSong']  # SimHei黑体 STSong宋体
@@ -71,7 +78,7 @@ plt.subplot(1, 2, 1)
 plt.plot(x, y, linewidth=2.0)
 # plt.show()
 
-# Draw heatmap。
+# Draw heatmap.
 plt.subplot(1, 2, 2)
 sns.set_theme()
 sns.heatmap(evaluation.T)

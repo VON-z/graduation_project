@@ -2,11 +2,11 @@
 '''
 @File    :   generate_data.py
 @Time    :   2022/05/06 15:57:53
-@Author  :   VONz 
+@Author  :   VONz
 @Version :   1.0
 @Contact :   1036991178@qq.com
 @License :   (C)Copyright 2021-2022, VONz.
-@Desc    :   Generate and read data for experiments, 
+@Desc    :   Generate and read data for experiments,
              including agent skills, motivation and network weights.
 '''
 
@@ -20,14 +20,11 @@ import networkx as nx
 import numpy as np
 
 # here put the local import source
-from multiplex_network.agent import Agent
-from multiplex_network.network import Network
-from ga import GA
 
 # Hyperparameters
 SKILL_NUM = 5
 MAX_MEMBER_NUM = 5
-NETWORK_SCALE = [100, 200, 500]
+NETWORK_SCALE = [20, 40, 60, 80, 100]
 
 # 1.Generate
 # Agent skills and motivation.
