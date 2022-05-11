@@ -16,6 +16,7 @@ import random
 # here put the third-party packages
 import numpy as np
 import scipy.linalg
+from tqdm import trange
 
 # here put the local import source
 
@@ -125,10 +126,11 @@ class SA():
                     self.grouping_matrix[:,j].copy(), self.grouping_matrix[:,i].copy()
                 flag = False
 
-    def __call__(self, T, alpha, L):
+    def __call__(self, C_max,T, alpha, L):
         """Execute the algorithm.
 
         Args:
+            C_max (int): Iteration rounds.
             T (int): initial temperature.
             alpha (float): attenuation factor.
             L (int): the number of iterations L for each value of T.
@@ -136,17 +138,37 @@ class SA():
         Returns:
             float: evaluation.
         """
+        self.C_max = C_max
         self.T = T
         self.alpha = alpha
         self.L = L
 
         self.generate_initial_solution()
-        while pass:
-            self.cal_payoff()
-            self.cal_evaluation()
-
+        self.cal_payoff()
+        self.cal_evaluation()
+        for i in trange(self.C_max):
+            original_solution = self.grouping_matrix.copy()
             for k in range(self.L):
-                pass
+                # Store the current grouping result, payoff matrix and evaluation.
+                current_solution = self.grouping_matrix.copy()
+                current_payoff = self.payoff_matrix.copy()
+                current_evaluation = self.evaluation
+
+                # Generate a new solution
+                self.generate_new_solution()
+                self.generate_initial_solution()
+                self.cal_payoff()
+                self.cal_evaluation()
+
+                delta_e = self.evaluation - current_evaluation
+                if not random.random() < math.exp(min(0, delta_e) / self.T) :
+                    self.grouping_matrix = current_solution.copy()
+                    self.payoff_matrix = current_payoff.copy()
+                    self.evaluation = current_evaluation
+
+            # If the solution does not change after L rounds, then exit.
+            if (original_solution == self.grouping_matrix).all():
+                break
             self.T *= self.alpha
 
         return self.evaluation
