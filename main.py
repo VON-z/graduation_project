@@ -12,6 +12,7 @@
 # here put the standard library
 
 # here put the third-party packages
+from pickle import POP
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -22,65 +23,133 @@ from multiplex_network.agent import Agent
 from multiplex_network.network import Network
 from ga import GA
 from sa import SA
+from data import load_skills
+from data import load_motivation
+from data import load_network
+from data import write2file
 
 # Hyperparameters
 SKILL_NUM = 5
 MAX_MEMBER_NUM = 5
-NETWORK_SCALE = 100
+
+# Network Hyperparameters
+NETWORK_NUM = 50
+NETWORK_SCALE = [20, 40, 60, 80, 100]
+NETWORK_TYPE = ['ER', 'WS', 'BA']
+ER_P = [0.1, 0.3, 0.5, 0.7, 0.9]
+WS_P = [0.1, 0.3, 0.5, 0.7, 0.9]
+BA_M = [1, 3, 5, 7, 9]
 
 # Genetic Algorithm Parameters.
+C_MAX = 500
 POPULATION = 100
-PC = 0.5
-PM = 0.1
-IT = 1000
+PC = [0.3, 0.5, 0.7]
+PM = [0.05, 0.1, 0.2]
 
 # Simulated Annealing Parameters.
-TE = 10
-ALPHA = 0.9
+TE = [1, 10, 100, 500]
+ALPHA = [0.95, 0.97, 0.99]
 L = 5
 
+Agent.skill_num = SKILL_NUM # Initialize Agent class variables.  
 
-Agent.skill_num = SKILL_NUM # Initialize Agent class variables.
-network = Network(NETWORK_SCALE)    # Build the network.
+# 1.Genetic Algorithm.
+for r in trange(50):
+    for network_scale in NETWORK_SCALE:
+        skills_matrix = load_skills(network_scale, r)
+        motivation = load_motivation(network_scale, r)
+        # ER
+        for p in ER_P:
+            w1 = load_network(network_scale, 'ER', r=r, layer=1, p=p)
+            w2 = load_network(network_scale, 'ER', r=r, layer=2, p=p)
+            network = Network(network_scale, W1=w1, W2=w2,
+                skills=skills_matrix, motivation=motivation)    # Build the network.
+            ga = GA(network, MAX_MEMBER_NUM, SKILL_NUM)
+            # Execute.
+            for pc in PC:
+                for pm in PM:
+                    evaluation, best_solution, best_solution_evaluation = \
+                        ga(C_max=C_MAX, P=POPULATION, pc=pc, pm=pm)
+                    write2file(evaluation, best_solution, best_solution_evaluation,
+                        r, 'GA', 'ER', network_scale, p=p, pc=pc, pm=pm)
 
-# Genetic Algorithm.
-algorithm = GA(network, MAX_MEMBER_NUM, SKILL_NUM, POPULATION, PC, PM, IT)
-algorithm.generate_initial_population() # Generate initial population.
-evaluation = np.empty([IT, POPULATION])
-for generation_num in trange(IT):
-    # Calculate payoff tensor.
-    algorithm.cal_payoff()
-    # Calculate evaluation.
-    algorithm.cal_evaluation()
-    evaluation[generation_num] = algorithm.evaluation.copy()    # draw heatmap.
-    # Calculate fitness.
-    algorithm.cal_fitness()
+        # WS
+        for p in WS_P:
+            w1 = load_network(network_scale, 'WS', r=r, layer=1, p=p)
+            w2 = load_network(network_scale, 'WS', r=r, layer=2, p=p)
+            network = Network(network_scale, W1=w1, W2=w2,
+                skills=skills_matrix, motivation=motivation)    # Build the network.
+            ga = GA(network, MAX_MEMBER_NUM, SKILL_NUM)
+            # Execute.
+            for pc in PC:
+                for pm in PM:
+                    evaluation, best_solution, best_solution_evaluation = \
+                        ga(C_max=C_MAX, P=POPULATION, pc=pc, pm=pm)
+                    write2file(evaluation, best_solution, best_solution_evaluation,
+                        r, 'GA', 'WS', network_scale, p=p, pc=pc, pm=pm)
 
-    # Selection.
-    algorithm.selection()
-    # Recombination.
-    algorithm.recombination()
-    # Mutation.
-    algorithm.mutation()
+        # BA
+        for m in BA_M:
+            w1 = load_network(network_scale, 'BA', r=r, layer=1, m=m)
+            w2 = load_network(network_scale, 'BA', r=r, layer=2, m=m)
+            network = Network(network_scale, W1=w1, W2=w2,
+                skills=skills_matrix, motivation=motivation)    # Build the network.
+            ga = GA(network, MAX_MEMBER_NUM, SKILL_NUM)
+            # Execute.
+            for pc in PC:
+                for pm in PM:
+                    evaluation, best_solution, best_solution_evaluation = \
+                        ga(C_max=C_MAX, P=POPULATION, pc=pc, pm=pm)
+                    write2file(evaluation, best_solution, best_solution_evaluation,
+                        r, 'GA', 'BA', network_scale, m=m, pc=pc, pm=pm)
 
-# Simulated Annealing.
-algorithm = SA(network, MAX_MEMBER_NUM, SKILL_NUM)
 
+# 2.Simulated Annealing.
+for r in trange(50):
+    for network_scale in NETWORK_SCALE:
+        skills_matrix = load_skills(network_scale, r)
+        motivation = load_motivation(network_scale, r)
+        # ER
+        for p in ER_P:
+            w1 = load_network(network_scale, 'ER', r=r, layer=1, p=p)
+            w2 = load_network(network_scale, 'ER', r=r, layer=2, p=p)
+            network = Network(network_scale, W1=w1, W2=w2,
+                skills=skills_matrix, motivation=motivation)    # Build the network.
+            sa = SA(network, MAX_MEMBER_NUM, SKILL_NUM)
+            # Execute.
+            for t in TE:
+                for alpha in ALPHA:
+                    evaluation, best_solution, best_solution_evaluation = \
+                        sa(C_max=C_MAX, T=t, alpha=alpha, L=L)
+                    write2file(evaluation, best_solution, best_solution_evaluation,
+                        r, 'SA', 'ER', network_scale, p=p, t=t, alpha=alpha)
 
-# Draw evaluation figure.
-# 支持中文以及负数
-plt.rcParams['font.sans-serif']=['STSong']  # SimHei黑体 STSong宋体
-plt.rcParams['axes.unicode_minus'] = False
+        # WS
+        for p in WS_P:
+            w1 = load_network(network_scale, 'WS', r=r, layer=1, p=p)
+            w2 = load_network(network_scale, 'WS', r=r, layer=2, p=p)
+            network = Network(network_scale, W1=w1, W2=w2,
+                skills=skills_matrix, motivation=motivation)    # Build the network.
+            sa = SA(network, MAX_MEMBER_NUM, SKILL_NUM)
+            # Execute.
+            for t in TE:
+                for alpha in ALPHA:
+                    evaluation, best_solution, best_solution_evaluation = \
+                        sa(C_max=C_MAX, T=t, alpha=alpha, L=L)
+                    write2file(evaluation, best_solution, best_solution_evaluation,
+                        r, 'SA', 'WS', network_scale, p=p, t=t, alpha=alpha)
 
-x = list(range(IT))
-y = [sum(evaluation[i]) / POPULATION for i in range(IT)]
-plt.subplot(1, 2, 1)
-plt.plot(x, y, linewidth=2.0)
-# plt.show()
-
-# Draw heatmap.
-plt.subplot(1, 2, 2)
-sns.set_theme()
-sns.heatmap(evaluation.T)
-plt.show()
-print('test')
+        # BA
+        for m in BA_M:
+            w1 = load_network(network_scale, 'BA', r=r, layer=1, m=m)
+            w2 = load_network(network_scale, 'BA', r=r, layer=2, m=m)
+            network = Network(network_scale, W1=w1, W2=w2,
+                skills=skills_matrix, motivation=motivation)    # Build the network.
+            sa = SA(network, MAX_MEMBER_NUM, SKILL_NUM)
+            # Execute.
+            for t in TE:
+                for alpha in ALPHA:
+                    evaluation, best_solution, best_solution_evaluation = \
+                        sa(C_max=C_MAX, T=t, alpha=alpha, L=L)
+                    write2file(evaluation, best_solution, best_solution_evaluation,
+                        r, 'SA', 'BA', network_scale, m=m, t=t, alpha=alpha)
