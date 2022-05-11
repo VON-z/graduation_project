@@ -16,6 +16,7 @@ import random
 # here put the third-party packages
 import scipy.linalg
 import numpy as np
+from tqdm import trange
 
 # here put the local import source
 
@@ -25,25 +26,17 @@ import numpy as np
 class GA():
     """Implement genetic algorithm.
     """
-    def __init__(self, network, group_scale, skill_num, P, pc, pm, it) -> None:
+    def __init__(self, network, group_scale, skill_num) -> None:
         """Initialization.
 
         Args:
             network (Network): network model.
             group_scale (int): max member number in a group.
             skill_num (int): skill number.
-            P (int): population size.
-            pc (float): probability of performing crossover.
-            pm (float): probability of mutation.
-            it (int): iteration rounds.
         """
         self.network = network
         self.group_scale = group_scale
         self.skill_num = skill_num
-        self.P = P
-        self.pc = pc
-        self.pm = pm
-        self.it = it
 
         self.block_diagonal_matrix = None
         self.generate_block_diagonal_matrix()
@@ -53,6 +46,14 @@ class GA():
         self.evaluation = []
         self.fitness = []
         self.intermediate_generation = []
+
+        #__call__
+        self.C_max = None
+        self.P = None
+        self.pc = None
+        self.pm = None
+        self.best_solution = None
+        self.best_solution_evaluation = None
 
     def generate_block_diagonal_matrix(self):
         """Generate block diagonal matrix.
@@ -216,12 +217,49 @@ class GA():
                     self.grouping_tensor[p,:,i], self.grouping_tensor[p,:,j] = \
                         self.grouping_tensor[p,:,j].copy(), self.grouping_tensor[p,:,i].copy()
 
-    def write2file(self, path):
-        """Write to disk file.
+    def __call__(self, C_max, P, pc, pm):
+        """Execute the algorithm.
 
         Args:
-            path (_type_): _description_
-        """
-        pass
+            C_max (int): iteration rounds.
+            P (int): population size.
+            pc (float): probability of performing crossover.
+            pm (float): probability of mutation.
 
-        
+        Returns:
+            evaluation (ndarray): the evaluation value of each candidate solution 
+                in each generation.
+            self.best_solution (ndarray): best grouping matrix.
+            self.best_solution_evaluation (float): best grouping evaluation.
+        """
+        self.C_max = C_max
+        self.P = P
+        self.pc = pc
+        self.pm = pm
+
+        self.best_solution_evaluation = 0
+        self.generate_initial_population() # Generate initial population.
+        evaluation = np.empty([self.C_max, self.P])
+
+        for generation_num in trange(self.C_max):
+            # Calculate payoff tensor.
+            self.cal_payoff()
+            # Calculate evaluation.
+            self.cal_evaluation()
+            evaluation[generation_num] = self.evaluation.copy()    # draw heatmap.
+            # Record the best grouping result.
+            max_idx = self.evaluation.index(max(self.evaluation))
+            if self.evaluation[max_idx] > self.best_solution_evaluation:
+                self.best_solution_evaluation = self.evaluation[max_idx]
+                self.best_solution = self.grouping_tensor[max_idx].copy()
+            # Calculate fitness.
+            self.cal_fitness()
+
+            # Selection.
+            self.selection()
+            # Recombination.
+            self.recombination()
+            # Mutation.
+            self.mutation()
+
+        return evaluation.copy(), self.best_solution, self.best_solution_evaluation

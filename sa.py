@@ -12,6 +12,7 @@
 # here put the standard library
 import math
 import random
+import os
 
 # here put the third-party packages
 import numpy as np
@@ -41,6 +42,14 @@ class SA():
         self.grouping_matrix = None # The matrix representing the grouping result。
         self.payoff_matrix = None   # The matrix records payoff of the grouping result.
         self.evaluation = 0
+
+        # __call__
+        self.C_max = None
+        self.T = None
+        self.alpha = None
+        self.L = None
+        self.best_solution = None
+        self.best_solution_evaluation = None
 
     def generate_block_diagonal_matrix(self):
         """Generate block diagonal matrix.
@@ -126,7 +135,7 @@ class SA():
                     self.grouping_matrix[:,j].copy(), self.grouping_matrix[:,i].copy()
                 flag = False
 
-    def __call__(self, C_max,T, alpha, L):
+    def __call__(self, C_max, T, alpha, L):
         """Execute the algorithm.
 
         Args:
@@ -136,7 +145,9 @@ class SA():
             L (int): the number of iterations L for each value of T.
 
         Returns:
-            float: evaluation.
+            evaluation (list): the evaluation value of candidate solution in each temperature.
+            self.best_solution (ndarray): best grouping matrix.
+            self.best_solution_evaluation (float): best grouping evaluation.
         """
         self.C_max = C_max
         self.T = T
@@ -146,6 +157,11 @@ class SA():
         self.generate_initial_solution()
         self.cal_payoff()
         self.cal_evaluation()
+        self.best_solution = self.grouping_matrix.copy()
+        self.best_solution_evaluation = self.evaluation
+
+        evaluation = []
+        evaluation.append(self.evaluation)
         for i in trange(self.C_max):
             original_solution = self.grouping_matrix.copy()
             for k in range(self.L):
@@ -165,18 +181,14 @@ class SA():
                     self.grouping_matrix = current_solution.copy()
                     self.payoff_matrix = current_payoff.copy()
                     self.evaluation = current_evaluation
-
+                evaluation.append(self.evaluation)
+                # Record the best grouping result.
+                if self.evaluation > self.best_solution_evaluation:
+                    self.best_solution_evaluation = self.evaluation
+                    self.best_solution = self.grouping_matrix.copy()
             # If the solution does not change after L rounds, then exit.
             if (original_solution == self.grouping_matrix).all():
                 break
             self.T *= self.alpha
 
-        return self.evaluation
-
-    def write2file(self, path):
-        """Write to disk file.
-
-        Args:
-            path (_type_): _description_
-        """
-        pass
+        return evaluation.copy(), self.best_solution, self.best_solution_evaluation
