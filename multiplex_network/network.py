@@ -40,9 +40,11 @@ class Network():
         self.T2 = None  # Temporary tensor used to calculate the skill promotion.
 
         # Network initialization.
-        if 'agents' in kw:
+        if 'skills' in kw and 'motivation' in kw:
             # Data initialization.
-            self.agents = kw['agents'].copy()
+            for idx in range(self.scale):
+                a = Agent(idx, skills=kw['skills'][idx], motivation=kw['motivation'][idx])
+                self.agents.append(a)
         else:
             # Random initialization.
             self.generate_agent_set()
