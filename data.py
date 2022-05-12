@@ -245,11 +245,11 @@ def write2file(evaluation, best_solution, best_solution_evaluation,
             path = os.path.join('./result', str(r), alg, network_type)
             if not os.path.exists(path):
                 os.makedirs(path)
-            np.save(os.path.join(path, 'ba_n{}_p{}_pc{}_pm{}_eva'.format(
+            np.save(os.path.join(path, 'ba_n{}_m{}_pc{}_pm{}_eva'.format(
                 network_scale, kw['m'], kw['pc'], kw['pm'])), evaluation)
-            np.save(os.path.join(path, 'ba_n{}_p{}_pc{}_pm{}_bs'.format(
+            np.save(os.path.join(path, 'ba_n{}_m{}_pc{}_pm{}_bs'.format(
                 network_scale, kw['m'], kw['pc'], kw['pm'])), best_solution)
-            np.save(os.path.join(path, 'ba_n{}_p{}_pc{}_pm{}_bse'.format(
+            np.save(os.path.join(path, 'ba_n{}_m{}_pc{}_pm{}_bse'.format(
                 network_scale, kw['m'], kw['pc'], kw['pm'])), best_solution_evaluation)
 
     elif alg == 'SA':
@@ -279,11 +279,11 @@ def write2file(evaluation, best_solution, best_solution_evaluation,
             path = os.path.join('./result', str(r), alg, network_type)
             if not os.path.exists(path):
                 os.makedirs(path)
-            np.save(os.path.join(path, 'ba_n{}_p{}_t{}_alpha{}_eva'.format(
+            np.save(os.path.join(path, 'ba_n{}_m{}_t{}_alpha{}_eva'.format(
                 network_scale, kw['m'], kw['t'], kw['alpha'])), evaluation)
-            np.save(os.path.join(path, 'ba_n{}_p{}_t{}_alpha{}_bs'.format(
+            np.save(os.path.join(path, 'ba_n{}_m{}_t{}_alpha{}_bs'.format(
                 network_scale, kw['m'], kw['t'], kw['alpha'])), best_solution)
-            np.save(os.path.join(path, 'ba_n{}_p{}_t{}_alpha{}_bse'.format(
+            np.save(os.path.join(path, 'ba_n{}_m{}_t{}_alpha{}_bse'.format(
                 network_scale, kw['m'], kw['t'], kw['alpha'])), best_solution_evaluation)
 
 
