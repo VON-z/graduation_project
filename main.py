@@ -105,7 +105,7 @@ Agent.skill_num = SKILL_NUM # Initialize Agent class variables.
 
 
 # 2.Simulated Annealing.
-for r in trange(50):
+for r in trange(10):
     for network_scale in NETWORK_SCALE:
         skills_matrix = load_skills(network_scale, r)
         motivation = load_motivation(network_scale, r)
