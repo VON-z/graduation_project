@@ -36,8 +36,7 @@ class Agent():
 
         if 'skills' in kw:
             # Data initialization.
-            for item in kw['skills']:
-                self.skills.append(item)
+            self.skills = kw['skills'].copy()
         else:
             # Random initialization.
             for _ in range(Agent.skill_num):
