@@ -33,12 +33,12 @@ SKILL_NUM = 5
 MAX_MEMBER_NUM = 5
 
 # Network Hyperparameters
-NETWORK_NUM = 50
-NETWORK_SCALE = [20, 40, 60, 80, 100]
+NETWORK_NUM = 10
+NETWORK_SCALE = [20, 60, 100]
 NETWORK_TYPE = ['ER', 'WS', 'BA']
-ER_P = [0.1, 0.3, 0.5, 0.7, 0.9]
-WS_P = [0.1, 0.3, 0.5, 0.7, 0.9]
-BA_M = [1, 3, 5, 7, 9]
+ER_P = [0.1, 0.5, 0.9]
+WS_P = [0.1, 0.5, 0.9]
+BA_M = [1, 5, 9]
 
 # Genetic Algorithm Parameters.
 C_MAX = 500
@@ -47,14 +47,14 @@ PC = [0.3, 0.5, 0.7]
 PM = [0.05, 0.1, 0.2]
 
 # Simulated Annealing Parameters.
-TE = [1, 10, 100, 500]
+TE = [10, 100, 500]
 ALPHA = [0.95, 0.97, 0.99]
 L = 5
 
 Agent.skill_num = SKILL_NUM # Initialize Agent class variables.  
 
 # 1.Genetic Algorithm.
-for r in trange(50):
+for r in trange(10):
     for network_scale in NETWORK_SCALE:
         skills_matrix = load_skills(network_scale, r)
         motivation = load_motivation(network_scale, r)

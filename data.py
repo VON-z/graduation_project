@@ -188,19 +188,19 @@ def load_network(network_scale, network_type, **kw):
     """
     if network_type == 'ER':
         path = os.path.join('./data', str(kw['r']), 'network', 'ER', 
-            'er{}_n{}_p{}'.format(kw['layer'], network_scale, kw['p']))
+            'er{}_n{}_p{}.npy'.format(kw['layer'], network_scale, kw['p']))
         weights = np.load(path)
         return weights
 
     if network_type == 'WS':
         path = os.path.join('./data', str(kw['r']), 'network', 'WS', 
-            'ws{}_n{}_k{}_p{}'.format(kw['layer'], network_scale, MAX_MEMBER_NUM, kw['p']))
+            'ws{}_n{}_k{}_p{}.npy'.format(kw['layer'], network_scale, MAX_MEMBER_NUM, kw['p']))
         weights = np.load(path)
         return weights
 
     if network_type == 'BA':
         path = os.path.join('./data', str(kw['r']), 'network', 'BA', 
-            'ba{}_n{}_m{}'.format(kw['layer'], network_scale, kw['m']))
+            'ba{}_n{}_m{}.npy'.format(kw['layer'], network_scale, kw['m']))
         weights = np.load(path)
         return weights
 
