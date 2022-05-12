@@ -163,7 +163,6 @@ class SA():
         evaluation = []
         evaluation.append(self.evaluation)
         for i in trange(self.C_max):
-            original_solution = self.grouping_matrix.copy()
             for k in range(self.L):
                 # Store the current grouping result, payoff matrix and evaluation.
                 current_solution = self.grouping_matrix.copy()
@@ -177,7 +176,7 @@ class SA():
                 self.cal_evaluation()
 
                 delta_e = self.evaluation - current_evaluation
-                if not random.random() < math.exp(min(0, delta_e) / self.T) :
+                if not (random.random() < math.exp(min(0, delta_e) / self.T)):
                     self.grouping_matrix = current_solution.copy()
                     self.payoff_matrix = current_payoff.copy()
                     self.evaluation = current_evaluation
@@ -186,9 +185,6 @@ class SA():
                 if self.evaluation > self.best_solution_evaluation:
                     self.best_solution_evaluation = self.evaluation
                     self.best_solution = self.grouping_matrix.copy()
-            # If the solution does not change after L rounds, then exit.
-            if (original_solution == self.grouping_matrix).all():
-                break
             self.T *= self.alpha
 
         return evaluation.copy(), self.best_solution, self.best_solution_evaluation
