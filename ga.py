@@ -192,7 +192,7 @@ class GA():
         child1 = parent1.copy()
         child2 = parent2.copy()
         
-        for i in range(self.network.scale):
+        for i in range(self.network.scale-1):
             if sum(child1[i] * child2[i]) < (self.group_scale-1)/2:
                 idx1 = random.randint(i+1, self.network.scale-1)
                 idx2 = random.randint(i+1, self.network.scale-1)
