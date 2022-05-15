@@ -204,7 +204,7 @@ def load_network(network_scale, network_type, **kw):
         weights = np.load(path)
         return weights
 
-# 3.Save
+# 3.Save experiment data.
 def write2file(evaluation, best_solution, best_solution_evaluation,
     r, alg, network_type, network_scale, **kw):
     """_summary_
@@ -286,6 +286,45 @@ def write2file(evaluation, best_solution, best_solution_evaluation,
             np.save(os.path.join(path, 'ba_n{}_m{}_t{}_alpha{}_bse'.format(
                 network_scale, kw['m'], kw['t'], kw['alpha'])), best_solution_evaluation)
 
+
+# 4.Load experiment data.
+def load_experiment_data(r, alg, network_type, network_scale, **kw):
+    """_summary_
+
+    Args:
+        r (int): _description_
+        alg (str): _description_
+        network_type (str): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    evaluation = None
+    best_solution = None
+    best_solution_evaluation = None
+
+    path = os.path.join('./result', str(r), alg, network_type)
+    pref = None
+    if alg == 'GA':
+        if network_type == 'ER':
+            pref = 'er_n{}_p{}_pc{}_pm{}_'.format(network_scale, kw['p'], kw['pc'], kw['pm'])
+        elif network_type == 'WS':
+            pref = 'ws_n{}_p{}_pc{}_pm{}_'.format(network_scale, kw['p'], kw['pc'], kw['pm'])
+        elif network_type == 'BA':
+            pref = 'ba_n{}_m{}_pc{}_pm{}_'.format(network_scale, kw['m'], kw['pc'], kw['pm'])
+
+    elif alg == 'SA':
+        if network_type == 'ER':
+            pref = 'er_n{}_p{}_t{}_alpha{}_'.format(network_scale, kw['p'], kw['t'], kw['t'])
+        elif network_type == 'WS':
+            pref = 'ws_n{}_p{}_t{}_alpha{}_'.format(network_scale, kw['p'], kw['t'], kw['t'])
+        elif network_type == 'BA':
+            pref = 'ba_n{}_m{}_t{}_alpha{}_'.format(network_scale, kw['m'], kw['t'], kw['t'])
+
+    evaluation = np.load(''.join([path, pref, '_eva']))
+    best_solution = np.load(''.join([path, pref, '_bs']))
+    best_solution_evaluation = np.load(''.join([path, pref, '_bse']))
+    return evaluation.copy(), best_solution.copy(), best_solution_evaluation.copy()
 
 # Generate data.
 # if __name__=='__main__':
