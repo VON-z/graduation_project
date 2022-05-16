@@ -13,6 +13,7 @@
 import os
 # here put the third-party packages
 import matplotlib.pyplot as plt
+import seaborn as sns
 # here put the local import source
 from data import load_experiment_data
 
@@ -49,7 +50,7 @@ def plot_line_chart(y, path):
     plt.plot(x, y, linewidth=2.0)
     plt.savefig(path)
 
-def draw_evaluation(r, alg, network_type, network_scale, **kw):
+def draw_evaluation_line(r, alg, network_type, network_scale, **kw):
     """_summary_
 
     Args:
@@ -64,7 +65,7 @@ def draw_evaluation(r, alg, network_type, network_scale, **kw):
         ## ER
         if network_type == 'ER':
             for pc in PC:
-                for pm in PM:                   
+                for pm in PM:
                     evaluation, _, _ = \
                         load_experiment_data(r, alg, network_type, network_scale, 
                         p=kw['p'], pc=pc, pm=pm)
@@ -80,7 +81,7 @@ def draw_evaluation(r, alg, network_type, network_scale, **kw):
         ## WS
         elif network_type == 'WS':
             for pc in PC:
-                for pm in PM:                   
+                for pm in PM:
                     evaluation, _, _ = \
                         load_experiment_data(r, alg, network_type, network_scale, 
                         p=kw['p'], pc=pc, pm=pm)
@@ -91,11 +92,11 @@ def draw_evaluation(r, alg, network_type, network_scale, **kw):
                             os.makedirs(path)
                     y = [sum(evaluation[i]) / POPULATION for i in range(C_MAX)]
                     plot_line_chart(y, os.path.join(path,
-                        'er_n{}_p{}_pc{}_pm{}.png'.format(network_scale, kw['p'], pc, pm)))
+                        'ws_n{}_p{}_pc{}_pm{}.png'.format(network_scale, kw['p'], pc, pm)))
         ## BA
         elif network_type == 'BA':
             for pc in PC:
-                for pm in PM:                   
+                for pm in PM:
                     evaluation, _, _ = \
                         load_experiment_data(r, alg, network_type, network_scale, 
                         m=kw['m'], pc=pc, pm=pm)
@@ -106,7 +107,7 @@ def draw_evaluation(r, alg, network_type, network_scale, **kw):
                             os.makedirs(path)
                     y = [sum(evaluation[i]) / POPULATION for i in range(C_MAX)]
                     plot_line_chart(y, os.path.join(path,
-                        'er_n{}_m{}_pc{}_pm{}.png'.format(network_scale, kw['m'], pc, pm)))
+                        'ba_n{}_m{}_pc{}_pm{}.png'.format(network_scale, kw['m'], pc, pm)))
 
     # Simulated Annealing.
     if alg == 'SA':
@@ -138,7 +139,7 @@ def draw_evaluation(r, alg, network_type, network_scale, **kw):
                         if not os.path.exists(path):
                             os.makedirs(path)
                     plot_line_chart(evaluation, os.path.join(path,
-                        'er_n{}_p{}_t{}_alpha{}.png'.format(network_scale, kw['p'], t, alpha)))
+                        'ws_n{}_p{}_t{}_alpha{}.png'.format(network_scale, kw['p'], t, alpha)))
         ## BA
         elif network_type == 'BA':
             for t in TE:
@@ -152,31 +153,38 @@ def draw_evaluation(r, alg, network_type, network_scale, **kw):
                         if not os.path.exists(path):
                             os.makedirs(path)
                     plot_line_chart(evaluation, os.path.join(path,
-                        'er_n{}_m{}_t{}_alpha{}.png'.format(network_scale, kw['m'], t, alpha)))
+                        'ba_n{}_m{}_t{}_alpha{}.png'.format(network_scale, kw['m'], t, alpha)))
+
+def draw_evaluation_bar():
+    pass
+
 if __name__ == '__main__':
     # 支持中文以及负数
     plt.rcParams['font.sans-serif']=['STSong']  # SimHei黑体 STSong宋体
     plt.rcParams['axes.unicode_minus'] = False
 
-    # Draw evaluation figure.
+    # Draw evaluation line chart.
     r=0
     ## Genetic Algorithm and Simulated Annealing.
-    for alg in ['GA']:
+    for alg in ['GA', 'SA']:
         for network_scale in NETWORK_SCALE:
             ### ER
             for p in ER_P:
-                draw_evaluation(r=r, alg=alg, network_type='ER',
+                draw_evaluation_line(r=r, alg=alg, network_type='ER',
                 network_scale=network_scale, p=p)
 
             # ### WS
             # for p in WS_P:
-            #     draw_evaluation(r=r, alg=alg, network_type='WS',
+            #     draw_evaluation_line(r=r, alg=alg, network_type='WS',
             #     network_scale=network_scale, p=p)
 
             # ### BA
             # for m in BA_M:
-            #     draw_evaluation(r=r, alg=alg, network_type='BA',
+            #     draw_evaluation_line(r=r, alg=alg, network_type='BA',
             #     network_scale=network_scale, m=m)
+
+    # Draw evaluation bar chart.
+    ## Genetic Algorithm and Simulated Annealing.
 
 # # Draw heatmap.
 # plt.subplot(1, 2, 2)
