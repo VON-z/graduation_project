@@ -315,15 +315,15 @@ def load_experiment_data(r, alg, network_type, network_scale, **kw):
 
     elif alg == 'SA':
         if network_type == 'ER':
-            pref = 'er_n{}_p{}_t{}_alpha{}_'.format(network_scale, kw['p'], kw['t'], kw['t'])
+            pref = 'er_n{}_p{}_t{}_alpha{}_'.format(network_scale, kw['p'], kw['t'], kw['alpha'])
         elif network_type == 'WS':
-            pref = 'ws_n{}_p{}_t{}_alpha{}_'.format(network_scale, kw['p'], kw['t'], kw['t'])
+            pref = 'ws_n{}_p{}_t{}_alpha{}_'.format(network_scale, kw['p'], kw['t'], kw['alpha'])
         elif network_type == 'BA':
-            pref = 'ba_n{}_m{}_t{}_alpha{}_'.format(network_scale, kw['m'], kw['t'], kw['t'])
+            pref = 'ba_n{}_m{}_t{}_alpha{}_'.format(network_scale, kw['m'], kw['t'], kw['alpha'])
 
-    evaluation = np.load(''.join([path, pref, '_eva']))
-    best_solution = np.load(''.join([path, pref, '_bs']))
-    best_solution_evaluation = np.load(''.join([path, pref, '_bse']))
+    evaluation = np.load(os.path.join(path, ''.join([pref, 'eva.npy'])))
+    best_solution = np.load(os.path.join(path, ''.join([pref, 'bs.npy'])))
+    best_solution_evaluation = np.load(os.path.join(path, ''.join([pref, 'bse.npy'])))
     return evaluation.copy(), best_solution.copy(), best_solution_evaluation.copy()
 
 # Generate data.
