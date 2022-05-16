@@ -13,8 +13,6 @@
 
 # here put the third-party packages
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
 from tqdm import trange
 
 # here put the local import source
