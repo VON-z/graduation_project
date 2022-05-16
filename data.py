@@ -27,11 +27,22 @@ SKILL_NUM = 5
 MAX_MEMBER_NUM = 5
 
 # Network Hyperparameters
-NETWORK_NUM = 50
 NETWORK_SCALE = [20, 40, 60, 80, 100]
-ER_P = [0.1, 0.3, 0.5, 0.7, 0.9]
-WS_P = [0.1, 0.3, 0.5, 0.7, 0.9]
-BA_M = [1, 3, 5, 7, 9]
+NETWORK_TYPE = ['ER', 'WS', 'BA']
+ER_P = [0.1, 0.5, 0.9]
+WS_P = [0.1, 0.5, 0.9]
+BA_M = [1, 5, 9]
+
+# Genetic Algorithm Parameters.
+C_MAX = 500
+POPULATION = 100
+PC = [0.3, 0.5, 0.7]
+PM = [0.05, 0.1, 0.2]
+
+# Simulated Annealing Parameters.
+TE = [10, 100, 500]
+ALPHA = [0.95, 0.97, 0.99]
+L = 5
 
 # 1.Generate
 # Agent skills and motivation.
@@ -326,6 +337,94 @@ def load_experiment_data(r, alg, network_type, network_scale, **kw):
     best_solution_evaluation = np.load(os.path.join(path, ''.join([pref, 'bse.npy'])))
     return evaluation.copy(), best_solution.copy(), best_solution_evaluation.copy()
 
+# 5.Organize data into tables.
+def generate_data_table(network_type, **kw):
+    """_summary_
+
+    Args:
+        network_type (str): _description_
+    """
+    data_table = np.empty([10, 9])
+    # ER
+    if network_type == 'ER':
+        ## SA
+        for i, network_scale in enumerate(NETWORK_SCALE):
+            for j, t in enumerate(TE):
+                for k, alpha in enumerate(ALPHA):
+                    bse_all = []
+                    for r in range(10):
+                        _, _, bse = load_experiment_data(r, 'SA', network_type, network_scale,
+                        p=kw['p'], t=t, alpha=alpha)
+                        bse_all.append(bse)
+                    data_table[i][j*3+k] = sum(bse_all) / 10
+        ## GA
+        for i, network_scale in enumerate(NETWORK_SCALE):
+            for j, pc in enumerate(PC):
+                for k, pm in enumerate(PM):
+                    bse_all = []
+                    for r in range(10):
+                        _, _, bse = load_experiment_data(r, 'GA', network_type, network_scale,
+                        p=kw['p'], pc=pc, pm=pm)
+                        bse_all.append(bse)
+                    data_table[i+len(NETWORK_SCALE)][j*3+k] = sum(bse_all) / 10
+        path = './table'
+        if not os.path.exists(path):
+            os.makedirs(path)
+        np.savetxt(os.path.join(path, 'er_p{}.csv'.format(kw['p'])), data_table, delimiter=',')
+
+    # WS
+    elif network_type == 'WS':
+        ## SA
+        for i, network_scale in enumerate(NETWORK_SCALE):
+            for j, t in enumerate(TE):
+                for k, alpha in enumerate(ALPHA):
+                    bse_all = []
+                    for r in range(10):
+                        _, _, bse = load_experiment_data(r, 'SA', network_type, network_scale,
+                        p=kw['p'], t=t, alpha=alpha)
+                        bse_all.append(bse)
+                    data_table[i][j*3+k] = sum(bse_all) / 10
+        ## GA
+        for i, network_scale in enumerate(NETWORK_SCALE):
+            for j, pc in enumerate(PC):
+                for k, pm in enumerate(PM):
+                    bse_all = []
+                    for r in range(10):
+                        _, _, bse = load_experiment_data(r, 'GA', network_type, network_scale,
+                        p=kw['p'], pc=pc, pm=pm)
+                        bse_all.append(bse)
+                    data_table[i+len(NETWORK_SCALE)][j*3+k] = sum(bse_all) / 10
+        path = './table'
+        if not os.path.exists(path):
+            os.makedirs(path)
+        np.savetxt(os.path.join(path, 'ws_p{}.csv'.format(kw['p'])), data_table, delimiter=',')
+    # BA
+    elif network_type == 'BA':
+        ## SA
+        for i, network_scale in enumerate(NETWORK_SCALE):
+            for j, t in enumerate(TE):
+                for k, alpha in enumerate(ALPHA):
+                    bse_all = []
+                    for r in range(10):
+                        _, _, bse = load_experiment_data(r, 'SA', network_type, network_scale,
+                        m=kw['m'], t=t, alpha=alpha)
+                        bse_all.append(bse)
+                    data_table[i][j*3+k] = sum(bse_all) / 10
+        ## GA
+        for i, network_scale in enumerate(NETWORK_SCALE):
+            for j, pc in enumerate(PC):
+                for k, pm in enumerate(PM):
+                    bse_all = []
+                    for r in range(10):
+                        _, _, bse = load_experiment_data(r, 'GA', network_type, network_scale,
+                        m=kw['m'], pc=pc, pm=pm)
+                        bse_all.append(bse)
+                    data_table[i+len(NETWORK_SCALE)][j*3+k] = sum(bse_all) / 10
+        path = './table'
+        if not os.path.exists(path):
+            os.makedirs(path)
+        np.savetxt(os.path.join(path, 'ba_m{}.csv'.format(kw['m'])), data_table, delimiter=',')
+
 # Generate data.
 # if __name__=='__main__':
 #     for r in trange(NETWORK_NUM):
@@ -349,10 +448,14 @@ def load_experiment_data(r, alg, network_type, network_scale, **kw):
 #                 for i in [1, 2]:
 #                     generate_ba(n, m, i, os.path.join('./data', str(r), 'network', 'BA'))
 
-
-# Test load function.
-# for n in NETWORK_SCALE:
-#     skills = load_skills(n, r)
-#     motivation = load_motivation(n, r)
-
-#     print('breakpoint')
+# Organize data into tables.
+if __name__ == "__main__":
+    ## ER
+    for p in ER_P:
+        generate_data_table('ER', p=p)
+    ## WS
+    for p in WS_P:
+        generate_data_table('WS', p=p)
+    ## BA
+    for m in BA_M:
+        generate_data_table('BA', m=m)
