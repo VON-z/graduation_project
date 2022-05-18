@@ -14,6 +14,7 @@ import math
 import random
 # here put the third-party packages
 import numpy as np
+from tqdm import trange
 # here put the local import source
 
 class UKB():
@@ -41,10 +42,10 @@ class UKB():
 
         self.centers = self.data[:self.k]
         self.new_centers = None
-        self.classifications = np.zeros(self.network.scale)
-        self.cluster_member_num = np.zeros(self.k)
+        self.classifications = np.zeros(self.network.scale, dtype=int)
+        self.cluster_member_num = None
 
-        self.grouping_matrix = np.zeros([self.network.scale, self.network.scale])
+        self.grouping_matrix = np.zeros([self.network.scale, self.network.scale], dtype=int)
         self.payoff_matrix = None
         self.evaluation = 0
 
@@ -52,32 +53,34 @@ class UKB():
         """assignment agents.
         """
         self.classifications.fill(-1)
+        self.cluster_member_num = np.zeros(self.k)
         for i, a in enumerate(self.data):
             dist = []
             for c in self.centers:
                 dist.append(np.linalg.norm(a-c))
-                while self.classifications[i] == -1:
-                    cluster_idx = dist.index(min(dist))
-                    if self.cluster_member_num[cluster_idx] < self.group_num:
-                        self.classifications[i] = cluster_idx
-                        self.cluster_member_num[cluster_idx] += 1
-                    else:
-                        dist[cluster_idx] = 999
+            while self.classifications[i] == -1:
+                cluster_idx = dist.index(min(dist))
+                if self.cluster_member_num[cluster_idx] < self.group_num:
+                    self.classifications[i] = cluster_idx
+                    self.cluster_member_num[cluster_idx] += 1
+                else:
+                    dist[cluster_idx] = 999
 
     def cal_new_centers(self):
         """calculate new centers.
         """
         cluster = []
         self.new_centers = []
-        for _ in self.k:
+        for _ in range(self.k):
             cluster.append([])
         for i, cluster_idx in enumerate(self.classifications):
             cluster[cluster_idx].append(self.data[i])
 
-        for cluster_idx in self.k:
+        for cluster_idx in range(self.k):
             c = np.array(cluster[cluster_idx])
             center = c.mean(axis=0)
             self.new_centers.append(center)
+        self.new_centers = np.array(self.new_centers)
 
     def grouping(self):
         """grouping.
@@ -87,20 +90,20 @@ class UKB():
             grouping.append([])
 
         cluster = []
-        for _ in self.k:
+        for _ in range(self.k):
             cluster.append([])
         for i, cluster_idx in enumerate(self.classifications):
             cluster[cluster_idx].append(i)
 
-        for cluster_idx in self.k:
+        for cluster_idx in range(self.k):
             rank = list(range(len(cluster[cluster_idx])))
             random.shuffle(rank)
             for i, group_idx in enumerate(rank):
-                grouping[group_idx].append(cluster[i])
+                grouping[group_idx].append(cluster[cluster_idx][i])
 
         for group in grouping:
-            for a1 in range(group):
-                for a2 in range(group):
+            for a1 in group:
+                for a2 in group:
                     if not a1 == a2:
                         self.grouping_matrix[a1][a2] = 1
 
@@ -149,7 +152,7 @@ class UKB():
             tuple: _description_
         """
         # clustering.
-        for _ in range(limit):
+        for _ in trange(limit):
             self.assignment()
             self.cal_new_centers()
             if (self.new_centers == self.centers).all():
