@@ -11,7 +11,7 @@
 
 # here put the standard library
 import os
-from typing_extensions import dataclass_transform
+
 # here put the third-party packages
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -175,10 +175,10 @@ def draw_ga_chart(labels, data, p):
     ax.spines['bottom'].set_linewidth(cu)
     ax.spines['top'].set_linewidth(cu)
 
-    rects1 = ax.bar(x - 0.5*width, data[0], width-0.02, label='GAc', color='#5b9bd5')
-    ax.bar_label(rects1, padding=3, fmt='%.1f', fontproperties='Times New Roman', fontsize=18)
-    rects1 = ax.bar(x + 0.5*width, data[1], width-0.02, label='GAn', color='#70ad47')
-    ax.bar_label(rects1, padding=3, fmt='%.1f', fontproperties='Times New Roman', fontsize=18)
+    rects = ax.bar(x - 0.5*width, data[0], width-0.02, label='GAc', color='#5b9bd5')
+    ax.bar_label(rects, padding=3, fmt='%.1f', fontproperties='Times New Roman', fontsize=18)
+    rects = ax.bar(x + 0.5*width, data[1], width-0.02, label='GAn', color='#70ad47')
+    ax.bar_label(rects, padding=3, fmt='%.1f', fontproperties='Times New Roman', fontsize=18)
 
     # Add some text for labels, title and custom x-axis tick labels, etc.
     # ax.set_ylabel('平均收益')
@@ -191,6 +191,48 @@ def draw_ga_chart(labels, data, p):
     if not os.path.exists(path):
         os.makedirs(path)
     plt.savefig(os.path.join(path, 'er_p{}.png'.format(p)))
+
+
+def draw_performance(labels, data, **kw):
+    """_summary_
+
+    Args:
+        labels (list): _description_
+        data (ndarray): _description_
+    """
+    plt.figure(figsize=(9, 9))
+    x = np.arange(len(labels))  # the label locations
+    width = 0.20    # the width of the bars
+    cu = 1.8
+    ax = plt.subplot() 
+    ax.spines['left'].set_linewidth(cu)
+    ax.spines['right'].set_linewidth(cu)
+    ax.spines['bottom'].set_linewidth(cu)
+    ax.spines['top'].set_linewidth(cu)
+
+    rects = ax.bar(x - width, data[0], width-0.02, label='SA', color='#5b9bd5')
+    ax.bar_label(rects, padding=3, fmt='%.1f', fontproperties='Times New Roman', fontsize=18)
+    rects = ax.bar(x, data[1], width-0.02, label='GA', color='#70ad47')
+    ax.bar_label(rects, padding=3, fmt='%.1f', fontproperties='Times New Roman', fontsize=18)
+    rects = ax.bar(x + width, data[2], width-0.02, label='UKB', color='#ffc000')
+    ax.bar_label(rects, padding=3, fmt='%.1f', fontproperties='Times New Roman', fontsize=18)
+
+    # Add some text for labels, title and custom x-axis tick labels, etc.
+    # ax.set_ylabel('平均收益')
+    # ax.set_title('Scores by group and gender')
+    ax.set_xticks(x, labels)
+    ax.legend()
+
+    plt.tight_layout()
+    path = os.path.join('./figure', 'performance')
+    if not os.path.exists(path):
+        os.makedirs(path)
+    if kw['network_type'] == 'ER':
+        plt.savefig(os.path.join(path, 'er_p{}.png'.format(kw['p'])))
+    if kw['network_type'] == 'WS':
+        plt.savefig(os.path.join(path, 'ws_p{}.png'.format(kw['p'])))
+    if kw['network_type'] == 'BA':
+        plt.savefig(os.path.join(path, 'ba_m{}.png'.format(kw['m'])))
 
 if __name__ == '__main__':
     # 支持中文以及负数
@@ -217,25 +259,98 @@ if __name__ == '__main__':
     #         #     draw_evaluation_line(r=r, alg=alg, network_type='BA',
     #         #     network_scale=network_scale, m=m)
 
-    # Draw evaluation bar chart. (GA crossover)
-    ## load data.
-    for p in [0.1, 0.5]:
-        data_c = np.zeros([10, 5])
-        data_n = np.zeros([10, 5])
+    # # Draw evaluation bar chart. (GA crossover)
+    # ## load data.
+    # for p in [0.1, 0.5]:
+    #     data_c = np.zeros([10, 5])
+    #     data_n = np.zeros([10, 5])
+    #     for r in range(10):
+    #         for i, network_scale in enumerate(NETWORK_SCALE):
+    #             _, _, data_c[r][i] = load_experiment_data(r, 'GA', 'ER', network_scale,
+    #                 p=p, pc=0.5, pm=0.1)
+    #             ### load no crossover data.
+    #             path = os.path.join('./result(no_crossover)', str(r), 'GA', 'ER',
+    #                 'er_n{}_p{}_pc{}_pm{}_bse.npy'.format(network_scale, p, 0.5, 0.1))
+    #             data_n[r][i] = np.load(path)
+    #     data_c_mean = data_c.mean(axis=0).reshape(1,5)
+    #     data_n_mean = data_n.mean(axis=0).reshape(1,5)
+    #     data = np.concatenate((data_c_mean, data_n_mean), axis=0)
+    #     labels = ['20', '40', '60', '80', '100']
+    #     draw_ga_chart(labels, data, p)
+
+    # Draw performance bar.
+    ## ER
+    for p in ER_P:
+        data_sa = np.zeros([10, 5])
+        data_ga = np.zeros([10, 5])
+        data_ukb = np.zeros([10, 5])
+        ### load data.
         for r in range(10):
             for i, network_scale in enumerate(NETWORK_SCALE):
-                _, _, data_c[r][i] = load_experiment_data(r, 'GA', 'ER', network_scale,
+                #### SA
+                _, _, data_sa[r][i] = load_experiment_data(r, 'SA', 'ER', network_scale,
+                    p=p, t=100, alpha=0.97)
+                #### GA
+                _, _, data_ga[r][i] = load_experiment_data(r, 'GA', 'ER', network_scale,
                     p=p, pc=0.5, pm=0.1)
-                ### load no crossover data.
-                path = os.path.join('./result(no_crossover)', str(r), 'GA', 'ER',
-                    'er_n{}_p{}_pc{}_pm{}_bse.npy'.format(network_scale, p, 0.5, 0.1))
-                data_n[r][i] = np.load(path)
-        data_c_mean = data_c.mean(axis=0).reshape(1,5)
-        data_n_mean = data_n.mean(axis=0).reshape(1,5)
-        data = np.concatenate((data_c_mean, data_n_mean), axis=0)
+                #### UKB
+                path = os.path.join('./result', str(r), 'UKB', 'ER',
+                    'er_n{}_p{}_eva.npy'.format(network_scale, p))
+                data_ukb[r][i] = np.load(path)
+        data_sa_mean = data_sa.mean(axis=0).reshape(1,5)
+        data_ga_mean = data_ga.mean(axis=0).reshape(1,5)
+        data_ukb_mean = data_ukb.mean(axis=0).reshape(1,5)
+        data = np.concatenate((data_sa_mean, data_ga_mean, data_ukb_mean), axis=0)
         labels = ['20', '40', '60', '80', '100']
-        draw_ga_chart(labels, data, p)
-
+        draw_performance(labels, data, network_type='ER',p=p)
+    ## WS
+    for p in WS_P:
+        data_sa = np.zeros([10, 5])
+        data_ga = np.zeros([10, 5])
+        data_ukb = np.zeros([10, 5])
+        ### load data.
+        for r in range(10):
+            for i, network_scale in enumerate(NETWORK_SCALE):
+                #### SA
+                _, _, data_sa[r][i] = load_experiment_data(r, 'SA', 'WS', network_scale,
+                    p=p, t=100, alpha=0.97)
+                #### GA
+                _, _, data_ga[r][i] = load_experiment_data(r, 'GA', 'WS', network_scale,
+                    p=p, pc=0.5, pm=0.1)
+                #### UKB
+                path = os.path.join('./result', str(r), 'UKB', 'WS',
+                    'ws_n{}_p{}_eva.npy'.format(network_scale, p))
+                data_ukb[r][i] = np.load(path)
+        data_sa_mean = data_sa.mean(axis=0).reshape(1,5)
+        data_ga_mean = data_ga.mean(axis=0).reshape(1,5)
+        data_ukb_mean = data_ukb.mean(axis=0).reshape(1,5)
+        data = np.concatenate((data_sa_mean, data_ga_mean, data_ukb_mean), axis=0)
+        labels = ['20', '40', '60', '80', '100']
+        draw_performance(labels, data, network_type='WS',p=p)
+    ## BA
+    for m in BA_M:
+        data_sa = np.zeros([10, 5])
+        data_ga = np.zeros([10, 5])
+        data_ukb = np.zeros([10, 5])
+        ### load data.
+        for r in range(10):
+            for i, network_scale in enumerate(NETWORK_SCALE):
+                #### SA
+                _, _, data_sa[r][i] = load_experiment_data(r, 'SA', 'BA', network_scale,
+                    m=m, t=100, alpha=0.97)
+                #### GA
+                _, _, data_ga[r][i] = load_experiment_data(r, 'GA', 'BA', network_scale,
+                    m=m, pc=0.5, pm=0.1)
+                #### UKB
+                path = os.path.join('./result', str(r), 'UKB', 'BA',
+                    'ba_n{}_m{}_eva.npy'.format(network_scale, m))
+                data_ukb[r][i] = np.load(path)
+        data_sa_mean = data_sa.mean(axis=0).reshape(1,5)
+        data_ga_mean = data_ga.mean(axis=0).reshape(1,5)
+        data_ukb_mean = data_ukb.mean(axis=0).reshape(1,5)
+        data = np.concatenate((data_sa_mean, data_ga_mean, data_ukb_mean), axis=0)
+        labels = ['20', '40', '60', '80', '100']
+        draw_performance(labels, data, network_type='BA',m=m)
 
 # # Draw heatmap.
 # plt.subplot(1, 2, 2)
