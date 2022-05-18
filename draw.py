@@ -22,7 +22,7 @@ SKILL_NUM = 5
 MAX_MEMBER_NUM = 5
 
 # Network Hyperparameters
-NETWORK_SCALE = [100]
+NETWORK_SCALE = [60]
 NETWORK_TYPE = ['ER', 'WS', 'BA']
 ER_P = [0.1, 0.5, 0.9]
 WS_P = [0.1, 0.5, 0.9]
@@ -166,7 +166,7 @@ if __name__ == '__main__':
     # Draw evaluation line chart.
     r=0
     ## Genetic Algorithm and Simulated Annealing.
-    for alg in ['GA', 'SA']:
+    for alg in ['GA']:
         for network_scale in NETWORK_SCALE:
             ### ER
             for p in ER_P:

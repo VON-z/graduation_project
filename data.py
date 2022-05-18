@@ -297,6 +297,33 @@ def write2file(evaluation, best_solution, best_solution_evaluation,
             np.save(os.path.join(path, 'ba_n{}_m{}_t{}_alpha{}_bse'.format(
                 network_scale, kw['m'], kw['t'], kw['alpha'])), best_solution_evaluation)
 
+    elif alg == 'UKB':
+        if network_type == 'ER':
+            path = os.path.join('./result', str(r), alg, network_type)
+            if not os.path.exists(path):
+                os.makedirs(path)
+            np.save(os.path.join(path, 'er_n{}_p{}_eva'.format(
+                network_scale, kw['p'])), evaluation)
+            np.save(os.path.join(path, 'er_n{}_p{}_bs'.format(
+                network_scale, kw['p'])), best_solution)
+
+        if network_type == 'WS':
+            path = os.path.join('./result', str(r), alg, network_type)
+            if not os.path.exists(path):
+                os.makedirs(path)
+            np.save(os.path.join(path, 'ws_n{}_p{}_eva'.format(
+                network_scale, kw['p'])), evaluation)
+            np.save(os.path.join(path, 'ws_n{}_p{}_bs'.format(
+                network_scale, kw['p'])), best_solution)
+
+        if network_type == 'BA':
+            path = os.path.join('./result', str(r), alg, network_type)
+            if not os.path.exists(path):
+                os.makedirs(path)
+            np.save(os.path.join(path, 'ba_n{}_m{}_eva'.format(
+                network_scale, kw['m'])), evaluation)
+            np.save(os.path.join(path, 'ba_n{}_m{}_bs'.format(
+                network_scale, kw['m'])), best_solution)      
 
 # 4.Load experiment data.
 def load_experiment_data(r, alg, network_type, network_scale, **kw):
