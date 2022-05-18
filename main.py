@@ -20,6 +20,7 @@ from multiplex_network.agent import Agent
 from multiplex_network.network import Network
 from ga import GA
 from sa import SA
+from ukb import UKB
 from data import load_skills
 from data import load_motivation
 from data import load_network
@@ -50,58 +51,108 @@ L = 5
 Agent.skill_num = SKILL_NUM # Initialize Agent class variables.
 
 # 1.Genetic Algorithm.
-for r in trange(10):
-    for network_scale in NETWORK_SCALE:
-        skills_matrix = load_skills(network_scale, r)
-        motivation = load_motivation(network_scale, r)
-        # ER
-        for p in ER_P:
-            w1 = load_network(network_scale, 'ER', r=r, layer=1, p=p)
-            w2 = load_network(network_scale, 'ER', r=r, layer=2, p=p)
-            network = Network(network_scale, W1=w1, W2=w2,
-                skills=skills_matrix, motivation=motivation)    # Build the network.
-            ga = GA(network, MAX_MEMBER_NUM, SKILL_NUM)
-            # Execute.
-            for pc in PC:
-                for pm in PM:
-                    evaluation, best_solution, best_solution_evaluation = \
-                        ga(C_max=C_MAX, P=POPULATION, pc=pc, pm=pm)
-                    write2file(evaluation, best_solution, best_solution_evaluation,
-                        r, 'GA', 'ER', network_scale, p=p, pc=pc, pm=pm)
+# for r in trange(10):
+#     for network_scale in NETWORK_SCALE:
+#         skills_matrix = load_skills(network_scale, r)
+#         motivation = load_motivation(network_scale, r)
+#         # ER
+#         for p in ER_P:
+#             w1 = load_network(network_scale, 'ER', r=r, layer=1, p=p)
+#             w2 = load_network(network_scale, 'ER', r=r, layer=2, p=p)
+#             network = Network(network_scale, W1=w1, W2=w2,
+#                 skills=skills_matrix, motivation=motivation)    # Build the network.
+#             ga = GA(network, MAX_MEMBER_NUM, SKILL_NUM)
+#             # Execute.
+#             for pc in PC:
+#                 for pm in PM:
+#                     evaluation, best_solution, best_solution_evaluation = \
+#                         ga(C_max=C_MAX, P=POPULATION, pc=pc, pm=pm)
+#                     write2file(evaluation, best_solution, best_solution_evaluation,
+#                         r, 'GA', 'ER', network_scale, p=p, pc=pc, pm=pm)
 
-        # WS
-        for p in WS_P:
-            w1 = load_network(network_scale, 'WS', r=r, layer=1, p=p)
-            w2 = load_network(network_scale, 'WS', r=r, layer=2, p=p)
-            network = Network(network_scale, W1=w1, W2=w2,
-                skills=skills_matrix, motivation=motivation)    # Build the network.
-            ga = GA(network, MAX_MEMBER_NUM, SKILL_NUM)
-            # Execute.
-            for pc in PC:
-                for pm in PM:
-                    evaluation, best_solution, best_solution_evaluation = \
-                        ga(C_max=C_MAX, P=POPULATION, pc=pc, pm=pm)
-                    write2file(evaluation, best_solution, best_solution_evaluation,
-                        r, 'GA', 'WS', network_scale, p=p, pc=pc, pm=pm)
+#         # WS
+#         for p in WS_P:
+#             w1 = load_network(network_scale, 'WS', r=r, layer=1, p=p)
+#             w2 = load_network(network_scale, 'WS', r=r, layer=2, p=p)
+#             network = Network(network_scale, W1=w1, W2=w2,
+#                 skills=skills_matrix, motivation=motivation)    # Build the network.
+#             ga = GA(network, MAX_MEMBER_NUM, SKILL_NUM)
+#             # Execute.
+#             for pc in PC:
+#                 for pm in PM:
+#                     evaluation, best_solution, best_solution_evaluation = \
+#                         ga(C_max=C_MAX, P=POPULATION, pc=pc, pm=pm)
+#                     write2file(evaluation, best_solution, best_solution_evaluation,
+#                         r, 'GA', 'WS', network_scale, p=p, pc=pc, pm=pm)
 
-        # BA
-        for m in BA_M:
-            w1 = load_network(network_scale, 'BA', r=r, layer=1, m=m)
-            w2 = load_network(network_scale, 'BA', r=r, layer=2, m=m)
-            network = Network(network_scale, W1=w1, W2=w2,
-                skills=skills_matrix, motivation=motivation)    # Build the network.
-            ga = GA(network, MAX_MEMBER_NUM, SKILL_NUM)
-            # Execute.
-            for pc in PC:
-                for pm in PM:
-                    evaluation, best_solution, best_solution_evaluation = \
-                        ga(C_max=C_MAX, P=POPULATION, pc=pc, pm=pm)
-                    write2file(evaluation, best_solution, best_solution_evaluation,
-                        r, 'GA', 'BA', network_scale, m=m, pc=pc, pm=pm)
+#         # BA
+#         for m in BA_M:
+#             w1 = load_network(network_scale, 'BA', r=r, layer=1, m=m)
+#             w2 = load_network(network_scale, 'BA', r=r, layer=2, m=m)
+#             network = Network(network_scale, W1=w1, W2=w2,
+#                 skills=skills_matrix, motivation=motivation)    # Build the network.
+#             ga = GA(network, MAX_MEMBER_NUM, SKILL_NUM)
+#             # Execute.
+#             for pc in PC:
+#                 for pm in PM:
+#                     evaluation, best_solution, best_solution_evaluation = \
+#                         ga(C_max=C_MAX, P=POPULATION, pc=pc, pm=pm)
+#                     write2file(evaluation, best_solution, best_solution_evaluation,
+#                         r, 'GA', 'BA', network_scale, m=m, pc=pc, pm=pm)
 
 
 # 2.Simulated Annealing.
-for r in trange(10):
+# for r in trange(10):
+#     for network_scale in NETWORK_SCALE:
+#         skills_matrix = load_skills(network_scale, r)
+#         motivation = load_motivation(network_scale, r)
+#         # ER
+#         for p in ER_P:
+#             w1 = load_network(network_scale, 'ER', r=r, layer=1, p=p)
+#             w2 = load_network(network_scale, 'ER', r=r, layer=2, p=p)
+#             network = Network(network_scale, W1=w1, W2=w2,
+#                 skills=skills_matrix, motivation=motivation)    # Build the network.
+#             sa = SA(network, MAX_MEMBER_NUM, SKILL_NUM)
+#             # Execute.
+#             for t in TE:
+#                 for alpha in ALPHA:
+#                     evaluation, best_solution, best_solution_evaluation = \
+#                         sa(C_max=C_MAX, T=t, alpha=alpha, L=L)
+#                     write2file(evaluation, best_solution, best_solution_evaluation,
+#                         r, 'SA', 'ER', network_scale, p=p, t=t, alpha=alpha)
+
+#         # WS
+#         for p in WS_P:
+#             w1 = load_network(network_scale, 'WS', r=r, layer=1, p=p)
+#             w2 = load_network(network_scale, 'WS', r=r, layer=2, p=p)
+#             network = Network(network_scale, W1=w1, W2=w2,
+#                 skills=skills_matrix, motivation=motivation)    # Build the network.
+#             sa = SA(network, MAX_MEMBER_NUM, SKILL_NUM)
+#             # Execute.
+#             for t in TE:
+#                 for alpha in ALPHA:
+#                     evaluation, best_solution, best_solution_evaluation = \
+#                         sa(C_max=C_MAX, T=t, alpha=alpha, L=L)
+#                     write2file(evaluation, best_solution, best_solution_evaluation,
+#                         r, 'SA', 'WS', network_scale, p=p, t=t, alpha=alpha)
+
+#         # BA
+#         for m in BA_M:
+#             w1 = load_network(network_scale, 'BA', r=r, layer=1, m=m)
+#             w2 = load_network(network_scale, 'BA', r=r, layer=2, m=m)
+#             network = Network(network_scale, W1=w1, W2=w2,
+#                 skills=skills_matrix, motivation=motivation)    # Build the network.
+#             sa = SA(network, MAX_MEMBER_NUM, SKILL_NUM)
+#             # Execute.
+#             for t in TE:
+#                 for alpha in ALPHA:
+#                     evaluation, best_solution, best_solution_evaluation = \
+#                         sa(C_max=C_MAX, T=t, alpha=alpha, L=L)
+#                     write2file(evaluation, best_solution, best_solution_evaluation,
+#                         r, 'SA', 'BA', network_scale, m=m, t=t, alpha=alpha)
+
+# 3.UKB
+for r in range(10):
     for network_scale in NETWORK_SCALE:
         skills_matrix = load_skills(network_scale, r)
         motivation = load_motivation(network_scale, r)
@@ -111,41 +162,24 @@ for r in trange(10):
             w2 = load_network(network_scale, 'ER', r=r, layer=2, p=p)
             network = Network(network_scale, W1=w1, W2=w2,
                 skills=skills_matrix, motivation=motivation)    # Build the network.
-            sa = SA(network, MAX_MEMBER_NUM, SKILL_NUM)
-            # Execute.
-            for t in TE:
-                for alpha in ALPHA:
-                    evaluation, best_solution, best_solution_evaluation = \
-                        sa(C_max=C_MAX, T=t, alpha=alpha, L=L)
-                    write2file(evaluation, best_solution, best_solution_evaluation,
-                        r, 'SA', 'ER', network_scale, p=p, t=t, alpha=alpha)
-
+            ukb = UKB(network, MAX_MEMBER_NUM, SKILL_NUM, k=MAX_MEMBER_NUM)
+            solution, evaluation = ukb(limit=500)
+            write2file(evaluation, solution, 0, r, 'UKB', 'ER', network_scale, p=p)
         # WS
         for p in WS_P:
             w1 = load_network(network_scale, 'WS', r=r, layer=1, p=p)
             w2 = load_network(network_scale, 'WS', r=r, layer=2, p=p)
             network = Network(network_scale, W1=w1, W2=w2,
                 skills=skills_matrix, motivation=motivation)    # Build the network.
-            sa = SA(network, MAX_MEMBER_NUM, SKILL_NUM)
-            # Execute.
-            for t in TE:
-                for alpha in ALPHA:
-                    evaluation, best_solution, best_solution_evaluation = \
-                        sa(C_max=C_MAX, T=t, alpha=alpha, L=L)
-                    write2file(evaluation, best_solution, best_solution_evaluation,
-                        r, 'SA', 'WS', network_scale, p=p, t=t, alpha=alpha)
-
+            ukb = UKB(network, MAX_MEMBER_NUM, SKILL_NUM, k=MAX_MEMBER_NUM)
+            solution, evaluation = ukb(limit=500)
+            write2file(evaluation, solution, 0, r, 'UKB', 'WS', network_scale, p=p)
         # BA
         for m in BA_M:
             w1 = load_network(network_scale, 'BA', r=r, layer=1, m=m)
             w2 = load_network(network_scale, 'BA', r=r, layer=2, m=m)
             network = Network(network_scale, W1=w1, W2=w2,
                 skills=skills_matrix, motivation=motivation)    # Build the network.
-            sa = SA(network, MAX_MEMBER_NUM, SKILL_NUM)
-            # Execute.
-            for t in TE:
-                for alpha in ALPHA:
-                    evaluation, best_solution, best_solution_evaluation = \
-                        sa(C_max=C_MAX, T=t, alpha=alpha, L=L)
-                    write2file(evaluation, best_solution, best_solution_evaluation,
-                        r, 'SA', 'BA', network_scale, m=m, t=t, alpha=alpha)
+            ukb = UKB(network, MAX_MEMBER_NUM, SKILL_NUM, k=MAX_MEMBER_NUM)
+            solution, evaluation = ukb(limit=500)
+            write2file(evaluation, solution, 0, r, 'UKB', 'BA', network_scale, m=m)
