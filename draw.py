@@ -48,12 +48,24 @@ def plot_line_chart(y, path):
         y (list): _description_
         path (str): _description_
     """
+    plt.figure(figsize=(7, 7))
+
+    ax = plt.subplot()
+    cu = 1.8
+    ax.spines['left'].set_linewidth(cu)
+    ax.spines['right'].set_linewidth(cu)
+    ax.spines['bottom'].set_linewidth(cu)
+    ax.spines['top'].set_linewidth(cu)
+
+    plt.yticks(fontproperties='Times New Roman', size=24)
+    plt.xticks(fontproperties='Times New Roman', size=24)
+
     x = list(range(len(y)))
     plt.plot(x, y, linewidth=2.0)
     plt.savefig(path)
 
 def draw_evaluation_line(r, alg, network_type, network_scale, **kw):
-    """_summary_
+    """ER network.
 
     Args:
         r (int): _description_
@@ -64,98 +76,34 @@ def draw_evaluation_line(r, alg, network_type, network_scale, **kw):
     evaluation = None
     # Genetic Algorithm.
     if alg == 'GA':
-        ## ER
-        if network_type == 'ER':
-            for pc in PC:
-                for pm in PM:
-                    evaluation, _, _ = \
-                        load_experiment_data(r, alg, network_type, network_scale, 
-                        p=kw['p'], pc=pc, pm=pm)
-                    ### draw
-                    path = os.path.join('./figure', str(r), alg, network_type)
-                    if path:
-                        if not os.path.exists(path):
-                            os.makedirs(path)
-                    y = [sum(evaluation[i]) / POPULATION for i in range(C_MAX)]
-                    plot_line_chart(y, os.path.join(path,
-                        'er_n{}_p{}_pc{}_pm{}.png'.format(network_scale, kw['p'], pc, pm)))
-
-        ## WS
-        elif network_type == 'WS':
-            for pc in PC:
-                for pm in PM:
-                    evaluation, _, _ = \
-                        load_experiment_data(r, alg, network_type, network_scale, 
-                        p=kw['p'], pc=pc, pm=pm)
-                    ### draw
-                    path = os.path.join('./figure', str(r), alg, network_type)
-                    if path:
-                        if not os.path.exists(path):
-                            os.makedirs(path)
-                    y = [sum(evaluation[i]) / POPULATION for i in range(C_MAX)]
-                    plot_line_chart(y, os.path.join(path,
-                        'ws_n{}_p{}_pc{}_pm{}.png'.format(network_scale, kw['p'], pc, pm)))
-        ## BA
-        elif network_type == 'BA':
-            for pc in PC:
-                for pm in PM:
-                    evaluation, _, _ = \
-                        load_experiment_data(r, alg, network_type, network_scale, 
-                        m=kw['m'], pc=pc, pm=pm)
-                    ### draw
-                    path = os.path.join('./figure', str(r), alg, network_type)
-                    if path:
-                        if not os.path.exists(path):
-                            os.makedirs(path)
-                    y = [sum(evaluation[i]) / POPULATION for i in range(C_MAX)]
-                    plot_line_chart(y, os.path.join(path,
-                        'ba_n{}_m{}_pc{}_pm{}.png'.format(network_scale, kw['m'], pc, pm)))
+        for pc in PC:
+            for pm in PM:
+                evaluation, _, _ = \
+                    load_experiment_data(r, alg, network_type, network_scale, 
+                    p=kw['p'], pc=pc, pm=pm)
+                ### draw
+                path = os.path.join('./figure', str(r), alg, network_type)
+                if path:
+                    if not os.path.exists(path):
+                        os.makedirs(path)
+                y = [sum(evaluation[i]) / POPULATION for i in range(C_MAX)]
+                plot_line_chart(y, os.path.join(path,
+                    'er_n{}_p{}_pc{}_pm{}.png'.format(network_scale, kw['p'], pc, pm)))
 
     # Simulated Annealing.
     if alg == 'SA':
-        ## ER
-        if network_type == 'ER':
-            for t in TE:
-                for alpha in ALPHA:
-                    evaluation, _, _ = \
-                        load_experiment_data(r, alg, network_type, network_scale, 
-                        p=kw['p'], t=t, alpha=alpha)
-                    ### draw
-                    path = os.path.join('./figure', str(r), alg, network_type)
-                    if path:
-                        if not os.path.exists(path):
-                            os.makedirs(path)
-                    plot_line_chart(evaluation, os.path.join(path,
-                        'er_n{}_p{}_t{}_alpha{}.png'.format(network_scale, kw['p'], t, alpha)))
-
-        ## WS
-        elif network_type == 'WS':
-            for t in TE:
-                for alpha in ALPHA:                 
-                    evaluation, _, _ = \
-                        load_experiment_data(r, alg, network_type, network_scale, 
-                        p=kw['p'], t=t, alpha=alpha)
-                    ### draw
-                    path = os.path.join('./figure', str(r), alg, network_type)
-                    if path:
-                        if not os.path.exists(path):
-                            os.makedirs(path)
-                    plot_line_chart(evaluation, os.path.join(path,
-                        'ws_n{}_p{}_t{}_alpha{}.png'.format(network_scale, kw['p'], t, alpha)))
-        ## BA
-        elif network_type == 'BA':
-            for t in TE:
-                for alpha in ALPHA:               
-                    evaluation, _, _ = \
-                        load_experiment_data(r, alg, network_type, network_scale, 
-                        m=kw['m'], t=t, alpha=alpha)
-                    ### draw
-                    path = os.path.join('./figure', str(r), alg, network_type)
-                    if path:
-                        if not os.path.exists(path):
-                            os.makedirs(path)
-                    plot_line_chart(evaluation, os.path.join(path,
-                        'ba_n{}_m{}_t{}_alpha{}.png'.format(network_scale, kw['m'], t, alpha)))
+        for t in TE:
+            for alpha in ALPHA:
+                evaluation, _, _ = \
+                    load_experiment_data(r, alg, network_type, network_scale, 
+                    p=kw['p'], t=t, alpha=alpha)
+                ### draw
+                path = os.path.join('./figure', str(r), alg, network_type)
+                if path:
+                    if not os.path.exists(path):
+                        os.makedirs(path)
+                plot_line_chart(evaluation, os.path.join(path,
+                    'er_n{}_p{}_t{}_alpha{}.png'.format(network_scale, kw['p'], t, alpha)))
 
 def draw_ga_chart(labels, data, p):
     """_summary_
@@ -192,7 +140,6 @@ def draw_ga_chart(labels, data, p):
         os.makedirs(path)
     plt.savefig(os.path.join(path, 'er_p{}.png'.format(p)))
 
-
 def draw_performance(labels, data, **kw):
     """_summary_
 
@@ -200,7 +147,7 @@ def draw_performance(labels, data, **kw):
         labels (list): _description_
         data (ndarray): _description_
     """
-    plt.figure(figsize=(9, 9))
+    plt.figure(figsize=(7, 7))
     x = np.arange(len(labels))  # the label locations
     width = 0.20    # the width of the bars
     cu = 1.8
@@ -221,7 +168,9 @@ def draw_performance(labels, data, **kw):
     # ax.set_ylabel('平均收益')
     # ax.set_title('Scores by group and gender')
     ax.set_xticks(x, labels)
-    ax.legend()
+    plt.xticks(fontsize=20)
+    plt.yticks(fontsize=20)
+    ax.legend(fontsize=20)
 
     plt.tight_layout()
     path = os.path.join('./figure', 'performance')
@@ -239,27 +188,15 @@ if __name__ == '__main__':
     plt.rcParams['font.sans-serif']=['STSong']  # SimHei黑体 STSong宋体
     plt.rcParams['axes.unicode_minus'] = False
 
-    # # Draw evaluation line chart.
-    # r=0
-    # ## Genetic Algorithm and Simulated Annealing.
-    # for alg in ['GA']:
-    #     for network_scale in NETWORK_SCALE:
-    #         ### ER
-    #         for p in ER_P:
-    #             draw_evaluation_line(r=r, alg=alg, network_type='ER',
-    #             network_scale=network_scale, p=p)
+    # 1.Draw evaluation line chart.
+    ## Genetic Algorithm and Simulated Annealing.
+    for alg in ['SA', 'GA']:
+        ### ER
+        for p in ER_P:
+            draw_evaluation_line(r=0, alg=alg, network_type='ER',
+            network_scale=60, p=p)
 
-    #         # ### WS
-    #         # for p in WS_P:
-    #         #     draw_evaluation_line(r=r, alg=alg, network_type='WS',
-    #         #     network_scale=network_scale, p=p)
-
-    #         # ### BA
-    #         # for m in BA_M:
-    #         #     draw_evaluation_line(r=r, alg=alg, network_type='BA',
-    #         #     network_scale=network_scale, m=m)
-
-    # # Draw evaluation bar chart. (GA crossover)
+    # # 2.Draw evaluation bar chart. (GA crossover)
     # ## load data.
     # for p in [0.1, 0.5]:
     #     data_c = np.zeros([10, 5])
@@ -278,79 +215,79 @@ if __name__ == '__main__':
     #     labels = ['20', '40', '60', '80', '100']
     #     draw_ga_chart(labels, data, p)
 
-    # Draw performance bar.
-    ## ER
-    for p in ER_P:
-        data_sa = np.zeros([10, 5])
-        data_ga = np.zeros([10, 5])
-        data_ukb = np.zeros([10, 5])
-        ### load data.
-        for r in range(10):
-            for i, network_scale in enumerate(NETWORK_SCALE):
-                #### SA
-                _, _, data_sa[r][i] = load_experiment_data(r, 'SA', 'ER', network_scale,
-                    p=p, t=100, alpha=0.97)
-                #### GA
-                _, _, data_ga[r][i] = load_experiment_data(r, 'GA', 'ER', network_scale,
-                    p=p, pc=0.5, pm=0.1)
-                #### UKB
-                path = os.path.join('./result', str(r), 'UKB', 'ER',
-                    'er_n{}_p{}_eva.npy'.format(network_scale, p))
-                data_ukb[r][i] = np.load(path)
-        data_sa_mean = data_sa.mean(axis=0).reshape(1,5)
-        data_ga_mean = data_ga.mean(axis=0).reshape(1,5)
-        data_ukb_mean = data_ukb.mean(axis=0).reshape(1,5)
-        data = np.concatenate((data_sa_mean, data_ga_mean, data_ukb_mean), axis=0)
-        labels = ['20', '40', '60', '80', '100']
-        draw_performance(labels, data, network_type='ER',p=p)
-    ## WS
-    for p in WS_P:
-        data_sa = np.zeros([10, 5])
-        data_ga = np.zeros([10, 5])
-        data_ukb = np.zeros([10, 5])
-        ### load data.
-        for r in range(10):
-            for i, network_scale in enumerate(NETWORK_SCALE):
-                #### SA
-                _, _, data_sa[r][i] = load_experiment_data(r, 'SA', 'WS', network_scale,
-                    p=p, t=100, alpha=0.97)
-                #### GA
-                _, _, data_ga[r][i] = load_experiment_data(r, 'GA', 'WS', network_scale,
-                    p=p, pc=0.5, pm=0.1)
-                #### UKB
-                path = os.path.join('./result', str(r), 'UKB', 'WS',
-                    'ws_n{}_p{}_eva.npy'.format(network_scale, p))
-                data_ukb[r][i] = np.load(path)
-        data_sa_mean = data_sa.mean(axis=0).reshape(1,5)
-        data_ga_mean = data_ga.mean(axis=0).reshape(1,5)
-        data_ukb_mean = data_ukb.mean(axis=0).reshape(1,5)
-        data = np.concatenate((data_sa_mean, data_ga_mean, data_ukb_mean), axis=0)
-        labels = ['20', '40', '60', '80', '100']
-        draw_performance(labels, data, network_type='WS',p=p)
-    ## BA
-    for m in BA_M:
-        data_sa = np.zeros([10, 5])
-        data_ga = np.zeros([10, 5])
-        data_ukb = np.zeros([10, 5])
-        ### load data.
-        for r in range(10):
-            for i, network_scale in enumerate(NETWORK_SCALE):
-                #### SA
-                _, _, data_sa[r][i] = load_experiment_data(r, 'SA', 'BA', network_scale,
-                    m=m, t=100, alpha=0.97)
-                #### GA
-                _, _, data_ga[r][i] = load_experiment_data(r, 'GA', 'BA', network_scale,
-                    m=m, pc=0.5, pm=0.1)
-                #### UKB
-                path = os.path.join('./result', str(r), 'UKB', 'BA',
-                    'ba_n{}_m{}_eva.npy'.format(network_scale, m))
-                data_ukb[r][i] = np.load(path)
-        data_sa_mean = data_sa.mean(axis=0).reshape(1,5)
-        data_ga_mean = data_ga.mean(axis=0).reshape(1,5)
-        data_ukb_mean = data_ukb.mean(axis=0).reshape(1,5)
-        data = np.concatenate((data_sa_mean, data_ga_mean, data_ukb_mean), axis=0)
-        labels = ['20', '40', '60', '80', '100']
-        draw_performance(labels, data, network_type='BA',m=m)
+    # # 3.Draw performance bar.
+    # ## ER
+    # for p in ER_P:
+    #     data_sa = np.zeros([10, 5])
+    #     data_ga = np.zeros([10, 5])
+    #     data_ukb = np.zeros([10, 5])
+    #     ### load data.
+    #     for r in range(10):
+    #         for i, network_scale in enumerate(NETWORK_SCALE):
+    #             #### SA
+    #             _, _, data_sa[r][i] = load_experiment_data(r, 'SA', 'ER', network_scale,
+    #                 p=p, t=100, alpha=0.97)
+    #             #### GA
+    #             _, _, data_ga[r][i] = load_experiment_data(r, 'GA', 'ER', network_scale,
+    #                 p=p, pc=0.5, pm=0.1)
+    #             #### UKB
+    #             path = os.path.join('./result', str(r), 'UKB', 'ER',
+    #                 'er_n{}_p{}_eva.npy'.format(network_scale, p))
+    #             data_ukb[r][i] = np.load(path)
+    #     data_sa_mean = data_sa.mean(axis=0).reshape(1,5)
+    #     data_ga_mean = data_ga.mean(axis=0).reshape(1,5)
+    #     data_ukb_mean = data_ukb.mean(axis=0).reshape(1,5)
+    #     data = np.concatenate((data_sa_mean, data_ga_mean, data_ukb_mean), axis=0)
+    #     labels = ['20', '40', '60', '80', '100']
+    #     draw_performance(labels, data, network_type='ER',p=p)
+    # ## WS
+    # for p in WS_P:
+    #     data_sa = np.zeros([10, 5])
+    #     data_ga = np.zeros([10, 5])
+    #     data_ukb = np.zeros([10, 5])
+    #     ### load data.
+    #     for r in range(10):
+    #         for i, network_scale in enumerate(NETWORK_SCALE):
+    #             #### SA
+    #             _, _, data_sa[r][i] = load_experiment_data(r, 'SA', 'WS', network_scale,
+    #                 p=p, t=100, alpha=0.97)
+    #             #### GA
+    #             _, _, data_ga[r][i] = load_experiment_data(r, 'GA', 'WS', network_scale,
+    #                 p=p, pc=0.5, pm=0.1)
+    #             #### UKB
+    #             path = os.path.join('./result', str(r), 'UKB', 'WS',
+    #                 'ws_n{}_p{}_eva.npy'.format(network_scale, p))
+    #             data_ukb[r][i] = np.load(path)
+    #     data_sa_mean = data_sa.mean(axis=0).reshape(1,5)
+    #     data_ga_mean = data_ga.mean(axis=0).reshape(1,5)
+    #     data_ukb_mean = data_ukb.mean(axis=0).reshape(1,5)
+    #     data = np.concatenate((data_sa_mean, data_ga_mean, data_ukb_mean), axis=0)
+    #     labels = ['20', '40', '60', '80', '100']
+    #     draw_performance(labels, data, network_type='WS',p=p)
+    # ## BA
+    # for m in BA_M:
+    #     data_sa = np.zeros([10, 5])
+    #     data_ga = np.zeros([10, 5])
+    #     data_ukb = np.zeros([10, 5])
+    #     ### load data.
+    #     for r in range(10):
+    #         for i, network_scale in enumerate(NETWORK_SCALE):
+    #             #### SA
+    #             _, _, data_sa[r][i] = load_experiment_data(r, 'SA', 'BA', network_scale,
+    #                 m=m, t=100, alpha=0.97)
+    #             #### GA
+    #             _, _, data_ga[r][i] = load_experiment_data(r, 'GA', 'BA', network_scale,
+    #                 m=m, pc=0.5, pm=0.1)
+    #             #### UKB
+    #             path = os.path.join('./result', str(r), 'UKB', 'BA',
+    #                 'ba_n{}_m{}_eva.npy'.format(network_scale, m))
+    #             data_ukb[r][i] = np.load(path)
+    #     data_sa_mean = data_sa.mean(axis=0).reshape(1,5)
+    #     data_ga_mean = data_ga.mean(axis=0).reshape(1,5)
+    #     data_ukb_mean = data_ukb.mean(axis=0).reshape(1,5)
+    #     data = np.concatenate((data_sa_mean, data_ga_mean, data_ukb_mean), axis=0)
+    #     labels = ['20', '40', '60', '80', '100']
+    #     draw_performance(labels, data, network_type='BA',m=m)
 
 # # Draw heatmap.
 # plt.subplot(1, 2, 2)
